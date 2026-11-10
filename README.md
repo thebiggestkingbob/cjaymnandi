@@ -35,3 +35,13 @@ Run the production server with `npm start`.
 Vercel: select the Next.js framework preset, repository root directory, and default build/output settings. No environment variables are required for this preview. Checkout, mailing-list collection and WhatsApp remain unavailable until their details and secure integrations are provided.
 
 The client handover checklist is available as `CLIENT_CONTENT_REQUEST.html`. Media processing and placement are documented in `public/media-readme.txt`. The site uses album green `#005028`, Helvetica-first typography, and the supplied visualizer with a separate, synchronized audio loop. Audio starts only on user activation. Checkout remains disabled until price, fulfilment and Yoco credentials are configured.
+
+## Contact and support preparation
+
+Booking and mailing-list forms, a Support panel, a draft `/privacy` page and a private submission API are implemented behind activation flags. Forms default to disabled. Read `SUPABASE_SETUP.md` for migrations, server-key requirements, review flags and activation tests. `SITE_READINESS.html` records the current end-to-end audit and remaining launch requirements. Do not enable data collection until setup and privacy review are complete.
+
+Run `npm test` for contact validation and local database tests, and `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e` for the local browser journey. These do not prove live Supabase or third-party provider availability.
+
+## Custom-domain countdown
+
+`cjaymnandi.co.za` and `www.cjaymnandi.co.za` display the animated countdown until Friday, 13 November 2026 at 12:00 SAST. Vercel hostnames retain the main site for review. The schedule is isolated in `lib/launch/schedule.ts`; see `DOMAIN_LAUNCH.md` for routing and DNS details. No payment or contact feature is enabled by this countdown.

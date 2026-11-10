@@ -1,7 +1,8 @@
 const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+const contacts = process.argv.includes('--contacts');
+const key = contacts ? process.env.SUPABASE_SECRET_KEY : process.env.SUPABASE_PUBLISHABLE_KEY;
 if (!url || !key) {
-  console.error('Supabase is not configured. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in .env.local or the process environment.');
+  console.error('Supabase is not configured. Set SUPABASE_URL and the required API key in .env.local or the process environment (publishable key by default, server secret for --contacts).');
   process.exit(1);
 }
 try {
@@ -15,7 +16,15 @@ try {
     console.error(`Supabase Data API check failed (HTTP ${response.status}). Check project status, URL, publishable key and network access.`);
     process.exitCode = 1;
   } else {
-    console.log('Supabase Data API connection verified. Table permissions and application workflows require separate validation.');
+    if (contacts) {
+      const schema = await response.json();
+      const paths = schema.paths || {};
+      const required = ['/mailing_list_signups', '/booking_enquiries', '/contact_rate_limits', '/rpc/submit_site_contact'];
+      if (!required.every(path => Object.hasOwn(paths, path))) {
+        console.error('Connection works, but the required contact schema is not available. Apply both migrations and check server-key permissions.');
+        process.exitCode = 1;
+      } else console.log('Contact tables and submission function are visible to the server key. No records were read or written; an end-to-end submission test is still required.');
+    } else console.log('Supabase Data API connection verified. Table permissions and application workflows require separate validation.');
   }
 } catch {
   console.error('Cannot reach Supabase. Check the project URL, network allowlist and TLS configuration.');

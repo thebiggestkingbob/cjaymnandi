@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
-    "supabase:check": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs"
+    "supabase:check": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node scripts/audit-site.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -17,6 +19,8 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

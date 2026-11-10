@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C.JayMnandi — website readiness</title><style>
+:root{--green:#005028;--yellow:#f8c400;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--green);color:var(--white);font:16px/1.65 Helvetica,"Helvetica Neue",Arial,sans-serif}main{max-width:1050px;margin:auto;padding:45px 28px 70px}header{border-bottom:1px solid #ffffff50;padding-bottom:30px}.brand{font-size:21px;font-weight:700}h1{font-size:clamp(38px,7vw,70px);line-height:1.05;letter-spacing:-2px;margin:35px 0 20px}h2{font-size:26px;line-height:1.25;margin:35px 0 18px}h3{font-size:19px;margin:28px 0 10px}.small{font-size:12px;letter-spacing:1px}.notice{padding:22px 0;border-block:1px solid #ffffff50;margin:28px 0}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #ffffff35;padding:15px 12px 15px 0}th{font-size:11px;letter-spacing:1px;text-transform:uppercase}.state{font-weight:700;white-space:nowrap}ul,ol{padding-left:22px}li{padding:5px 0}a{color:inherit;text-underline-offset:4px}a:hover,button:hover{color:var(--yellow)}button{font:inherit;border:0;padding:12px 0;background:none;color:inherit;cursor:pointer}code{font-size:.88em;overflow-wrap:anywhere}.muted{opacity:.8}.table-wrap{overflow-x:auto}footer{margin-top:40px;border-top:1px solid #ffffff50;padding-top:20px;font-size:13px}@media(max-width:600px){main{padding:30px 20px}table{min-width:570px}}@media print{body{background:white;color:#111;font-size:10pt}main{max-width:none;padding:0}button{display:none}h1{font-size:35pt}h2{break-after:avoid}tr,li{break-inside:avoid}th,td,header,footer,.notice{border-color:#aaa}.table-wrap{overflow:visible}table{min-width:0}}
+</style></head><body><main>
+<header><span class="brand">C.JayMnandi / LAX!</span><p class="small">WEBSITE READINESS · 10 NOVEMBER 2026</p><h1>The experience.<br>The next steps.</h1><p>An end-to-end review of the current website and the remaining work before enquiries, updates and digital sales can operate.</p><button onclick="window.print()">Print / Save PDF</button></header>
+<div class="notice"><strong>Current outcome</strong><p>The visual experience works in local desktop and mobile checks. Booking and mailing-list flows have been prepared and tested against a disposable local database. They remain disabled by default. No new code, environment settings or database migrations were published during this audit.</p><p>Live Vercel, Supabase, Spotify and YouTube checks are blocked by this workspace's network policy. A saved Vercel variable is evidence of configuration, not proof of a working connection.</p></div>
+<h2>What is in place</h2><div class="table-wrap"><table><thead><tr><th>Visitor journey</th><th>Status</th><th>Evidence and next step</th></tr></thead><tbody>
+<tr><td>Landing experience</td><td class="state">Checked locally</td><td>Supplied full-screen film, centred Helvetica typography, single album green, borderless CTAs, sunflower hover cursor and animated solid panels.</td></tr>
+<tr><td>Sound and motion</td><td class="state">Checked locally</td><td>User-activated sound, pause/resume, no sound behind open panels, and reduced-motion still state. The supplied audio is matched to the film's duration.</td></tr>
+<tr><td>LAX! cover and store</td><td class="state">Checked locally</td><td>Official cover loads on desktop and mobile. Checkout remains disabled; no payment is taken.</td></tr>
+<tr><td>Archive</td><td class="state">Prepared</td><td>Two Spotify players and three YouTube players, including the live performance and feature. Local layout checks used substitute player documents; actual provider playback remains unverified.</td></tr>
+<tr><td>Booking enquiries</td><td class="state">Ready for review</td><td>Form, validation, error/retry and database storage work locally. Enquiries do not confirm bookings. Live activation prerequisites are below.</td></tr>
+<tr><td>Mailing list</td><td class="state">Ready for review</td><td>Explicit consent, private request storage and duplicate handling work locally. No newsletters, welcome messages or email notifications are sent.</td></tr>
+<tr><td>Support and privacy</td><td class="state">Drafted</td><td>Support panel and privacy page prepared. Public operator/contact details and privacy review remain missing. A mobile focus-return issue was corrected, and the panel close control stays visible while scrolling.</td></tr>
+<tr><td>WhatsApp</td><td class="state">Awaiting details</td><td>Official number/channel and opt-in purpose are still needed.</td></tr>
+<tr><td>Supabase</td><td class="state">Not live-verified</td><td>Project exists and the Vercel screenshot shows URL/publishable-key variables. No credentials are injected into this workspace. Remote migration state and actual submissions are unverified.</td></tr>
+</tbody></table></div>
+<h2>Priority 1 / Open enquiries and signup</h2><ol>
+<li><strong>Supply the public operator name and support/booking email.</strong> Identify who will monitor booking requests and respond.</li>
+<li><strong>Review the privacy and consent text.</strong> Confirm how requests are retained, handled and deleted. The draft is not an approval or a legal review.</li>
+<li><strong>Apply the two prepared Supabase migrations in order.</strong> Do not rerun an already-applied migration or reset existing customer data. Public database access stays denied.</li>
+<li><strong>Add a separate server-only Supabase secret key securely.</strong> The publishable key alone cannot insert into these protected tables. Never send secret values in chat.</li>
+<li><strong>Test in a preview before enabling production.</strong> Verify both requests appear in Supabase, test errors and public-access restrictions, then remove only the controlled test records.</li>
+<li><strong>Assign an enquiry workflow.</strong> The prepared forms save requests only. Either arrange routine review in Supabase or add an email notification service; confirm receipt does not guarantee an artist reply.</li>
+</ol>
+<h2>Priority 2 / Make digital sales possible</h2><ul>
+<li>Confirm the LAX! price, currency, tax treatment, final product copy, track list and credits.</li>
+<li>Provide the exact purchased download files; store them privately, outside the website's public media folder.</li>
+<li>Provide Yoco test/live access through secure settings and approve the refund and digital-purchase terms.</li>
+<li>Implement server-priced checkout, verified provider webhooks and repeat-safe payment processing. A success-page visit must never unlock a purchase.</li>
+<li>Issue short-lived private download links only after payment verification, with a tested resend/support route.</li>
+<li>Test successful, cancelled, failed and pending payments, repeated webhook delivery, fulfilment failures and customer emails before enabling BUY LAX! payments.</li>
+</ul>
+<h2>Priority 3 / Content and communications</h2><ul>
+<li>Confirm the title, credits and role for the featured video currently labelled “Featured appearance.”</li>
+<li>Confirm biography details, public contact links, official WhatsApp destination and any remaining release links.</li>
+<li>Select the mailing/email provider. Verify its sending domain, deliverability, consent import, unsubscribe and suppression handling before broadcasts.</li>
+<li>Confirm the website domain owner, support responsibility and launch approver. Add search/social-share metadata and analytics only when the required details or provider choice are known.</li>
+</ul>
+<h2>Checks and their limits</h2><ul>
+<li><strong>Passed:</strong> contact-input validation and both SQL migrations against local PostgreSQL-compatible PGlite, including private permissions, consent, duplicate signups, transactional rollback and the request limit.</li>
+<li><strong>Passed:</strong> desktop/mobile browser journey through all main panels, real local media, artwork, forms → application API → local database, simulated save failure/retry, success feedback, oversized requests, invalid origins, disabled purchase flow and reduced motion.</li>
+<li><strong>Passed:</strong> production compilation and TypeScript checks during preparation; final changes are validated again before handover.</li>
+<li><strong>Expected unavailable:</strong> this workspace's Supabase connection check reports missing configuration.</li>
+<li><strong>Unverified:</strong> live database tables, live form submissions, live deployment state and Spotify/YouTube playback. Third-party services also control login, region and playback restrictions; eager player loading cannot guarantee immediate full playback.</li>
+</ul>
+<h2>Developer handover</h2><p>Complete setup and activation steps are in <code>SUPABASE_SETUP.md</code>. Required values are listed in <code>.env.example</code>. The new forms are disabled until configuration, privacy approval and the explicit activation flag are present.</p><p>The original client asset request is retained as historical context. The cover, visualizer and audio have now been received; they do not need to be requested again.</p>
+<footer>C.JayMnandi · LAX! · Prepared for review. This report does not publish changes or certify live payment/data processing.</footer>
+</main></body></html>

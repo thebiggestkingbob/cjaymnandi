@@ -1,23 +1,46 @@
-# Connect Supabase
+# Supabase and contact forms
 
-The code includes a server-only public-role client in `lib/supabase/server.ts`.
-No tables, permissions, customer records or live integrations have been created yet.
-The website continues to work without Supabase configuration.
+Project: `lqbiogmmfjhbibhgufex`.
+API URL: `https://lqbiogmmfjhbibhgufex.supabase.co`.
 
-1. Create or select the client's project at https://supabase.com/dashboard.
-2. In project settings, find the project URL and the **publishable** API key (a legacy anon key also works). Do not use the secret or service-role key.
-3. Add `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` to the Vercel project's environment variables for the required environments. Redeploy after saving them. These server-only variable names do not need a `NEXT_PUBLIC_` prefix.
-4. For local development, copy `.env.example` to `.env.local` and fill in the values. This file is ignored by Git. Cloud workspace configuration must be set separately from Vercel.
-5. Allow the project's hostname in cloud network settings if it is blocked, then run `npm run supabase:check`.
+The Vercel screenshot shows `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` saved for Production. Their values, the latest deployment, and live table state have not been verified from this workspace. This workspace currently has neither those bindings nor network access to the project.
 
-The connection check makes a read-only request to Supabase's Data API and prints no keys or database contents. A passing check verifies API connectivity, not application features or table permissions.
+## What the code now prepares
 
-Decide the first workflow before creating its schema: mailing-list/booking enquiries, managed archive content, or purchase records/download fulfilment. Enable Row Level Security and add narrowly scoped policies for the chosen workflow. Do not make customer data publicly readable. Yoco payment verification remains a separate server integration; adding Supabase does not enable payments.
+- `/api/contact`: same-origin JSON POST only, bounded body size, server validation, honeypot, generic duplicate-signup response, and private database writes.
+- Booking and mailing-list forms: clear consent, pending/success/failure states, input retained on failures, no promise of a confirmed booking or automated email.
+- Private tables and a transactional submission function. Anonymous and authenticated public roles cannot read, write or call the submission function.
+- A shared database rate limit: five successful contact submissions per hashed client network address per ten-minute window. No raw IP address is stored. Expired counters are deleted on subsequent submissions.
+- Support panel and a draft privacy page. Forms are disabled by default.
 
-## Selected first workflow: mailing list and bookings
+## Activate after review
 
-Create the project under the client's organisation, name it `cjaymnandi`, choose a region close to the audience (South Africa if available), and generate/save a strong database password in a password manager. The Free plan is sufficient to start development; review current plan limits before launch.
+1. Apply migrations once, in order, using Supabase SQL Editor or the Supabase migration tooling:
+   - `supabase/migrations/202611100001_contacts.sql`
+   - `supabase/migrations/202611100002_contact_submission.sql`
+   If the first migration was already applied, do not rerun it. Do not reset existing tables.
+2. In Vercel server environment settings, retain the existing URL/publishable key and add `SUPABASE_SECRET_KEY` using the project's **server secret** (`sb_secret_…`) or legacy service-role key. This is a separate server-only credential; do not replace the publishable key, paste a secret into chat, or prefix it with `NEXT_PUBLIC_`.
+3. Supply the approved public `CONTACT_OPERATOR_NAME` and `CONTACT_SUPPORT_EMAIL`. Review the privacy page with the responsible operator, including retention, international processing and consent handling. Then set `CONTACT_PRIVACY_APPROVED=true`.
+4. In a test/preview environment, set `CONTACT_FORMS_ENABLED=true` and redeploy. Save environment settings in this cloud workspace separately if agent-side connection tests are wanted. Allow `lqbiogmmfjhbibhgufex.supabase.co` in its outbound network settings.
+5. Run `npm run supabase:check`, then `npm run supabase:check -- --contacts`. The latter inspects schema visibility using the server key; it does not read customer rows or write a submission. Node 24 supports `NODE_USE_ENV_PROXY=1` when running through the cloud HTTPS proxy.
+6. Perform controlled live signup and booking tests, confirm the records in Supabase, and confirm public access is denied. Clearly label test submissions and delete only those test records after checking. Choose who monitors the tables, or implement an email notification workflow, before opening enquiries publicly.
+7. Only after those checks, enable the production flags and redeploy. To disable collection, set `CONTACT_FORMS_ENABLED=false` and redeploy. The API also checks the flag at request time.
 
-After the project finishes provisioning, run `supabase/migrations/202611100001_contacts.sql` once in its SQL Editor. This creates separate signup and enquiry tables with Row Level Security enabled and no public read/write permissions. The migration has not been applied or validated against a live database yet.
+The static page's form availability and privacy text are rendered using build-time environment settings, so changes require a redeploy. The server route checks configuration independently and fails closed if disabled or incomplete.
 
-The future submission API requires a Supabase server secret key (or legacy service-role key). Store it only in secure server environment settings, never in chat, browser code, or a `NEXT_PUBLIC_` variable. Submission validation, spam controls, privacy/consent wording and end-to-end verification must be completed before enabling public forms. These tables store requests; sending newsletters or enquiry notification emails needs a separate email service.
+## Verify locally
+
+```sh
+npm test
+CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e
+npm run build
+npm run typecheck
+```
+
+`npm test` validates both SQL migrations against PostgreSQL-compatible PGlite and checks private access, deduplication, consent and rate limits. `test:e2e` starts a disposable local PGlite database, a local Supabase Data API adapter, and Next.js. It uses only `example.com` fixture addresses and stubs Spotify/YouTube iframe documents. It verifies application-to-database flow locally, not managed Supabase infrastructure or third-party playback. Use an installed Playwright Chromium if `CHROMIUM_PATH` is omitted. The test requires Node 24 for native TypeScript loading.
+
+## Still separate
+
+These forms store requests; they do not send booking notifications, confirm bookings, subscribe anyone with a mailing provider, or send newsletters. Select the mail provider, configure the sending domain, test delivery and implement unsubscribe/suppression handling before sending broadcasts. Keep mailing consent separate from booking and purchase requests.
+
+Yoco payments, order fulfilment, private download storage and payment emails are not implemented. Supabase configuration does not enable checkout.
