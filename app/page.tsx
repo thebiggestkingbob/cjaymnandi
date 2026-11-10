@@ -1,66 +1,33 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-function Arrow() { return <svg className="arrow" aria-hidden="true" viewBox="0 0 16 16" fill="none"><path d="M3 13 13 3M3 3h10v10" stroke="currentColor" strokeWidth="1.3" /></svg>; }
-const spotify = 'https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni';
-const sections = ['Music', 'Store', 'Bookings', 'About', 'Stay connected'] as const;
-type Section = typeof sections[number];
-export default function Home() {
-  const [panel, setPanel] = useState<Section | null>(null);
-  const [media, setMedia] = useState<{ video?: string; audio?: string }>({});
-  const [playing, setPlaying] = useState(false);
-  const [message, setMessage] = useState('');
-  const audio = useRef<HTMLAudioElement>(null);
-  const video = useRef<HTMLVideoElement>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const previousFocus = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    // Missing media never produces broken images or automatic downloads.
-    const controller = new AbortController();
-    Promise.all(['visualizer.mp4', 'ReelAudio-11318.mp3'].map(async (file) => {
-      const response = await fetch(`/media/${file}`, { method: 'HEAD', signal: controller.signal });
-      return response.ok ? `/media/${file}` : undefined;
-    })).then(([video, audio]) => setMedia({ video, audio })).catch(() => {});
-    return () => controller.abort();
-  }, []);
-  useEffect(() => {
-    if (panel) { previousFocus.current = document.activeElement as HTMLElement; dialog.current?.showModal(); document.body.style.overflow = 'hidden'; }
-    else { dialog.current?.close(); document.body.style.overflow = ''; previousFocus.current?.focus(); }
-    return () => { document.body.style.overflow = ''; };
-  }, [panel]);
-  async function toggleSound() {
-    if (!media.audio) { setMessage('The LAX! audio is coming soon. Explore C.JayMnandi on Spotify.'); return; }
-    if (playing) { audio.current?.pause(); setPlaying(false); }
-    else { try { await audio.current?.play(); setPlaying(true); setMessage(''); } catch { setMessage('Audio could not play. Please try again.'); } }
-  }
-  return <main>
-    <div className="stage" aria-hidden="true">
-      {media.video && <video ref={video} className="visualizer" src={media.video} loop muted playsInline preload="none" />}
-      <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-      <span className="backdrop-word">LAX!</span><div className="grain" />
-    </div>
-    <header><a className="wordmark" href="#home" aria-label="C.JayMnandi home">C.JayMnandi<span>JUPITER VIBEZ</span></a>
-      <nav aria-label="Main navigation">{sections.map(s => <button key={s} onClick={() => setPanel(s)}>{s === 'Stay connected' ? 'Connect' : s}</button>)}</nav>
-      <button className="button header-buy" onClick={() => setPanel('Store')}>BUY LAX! <span><Arrow /></span></button>
-    </header>
-    <section id="home" className="hero" aria-labelledby="hero-title">
-      <div className="edition"><span className="dot" /> THE LAX! EXPERIENCE <span className="edition-number">01 / C.JAYMNANDI</span></div>
-      <p className="eyebrow">FROM STINKWATER. TO YOUR WORLD.</p>
-      <h1 id="hero-title">LAX<span className="exclamation">!</span></h1>
-      <div className="hero-bottom"><div><p className="hero-copy">A world of his own.<br />Welcome to Jupiter Vibez.</p><p className="credit">C.JayMnandi / Hammanskraal, South Africa</p></div>
-        <div className="hero-actions"><button className="button primary" onClick={() => setPanel('Store')}>BUY LAX! <span><Arrow /></span></button><a className="text-link" href={spotify} target="_blank" rel="noreferrer">Explore on Spotify <Arrow /></a></div>
-      </div>
-    </section>
-    <footer><div className="media-controls"><button onClick={toggleSound} aria-pressed={playing}><span aria-hidden="true">{playing ? 'Ⅱ' : '▷'}</span> SOUND {playing ? 'ON' : 'OFF'}</button>{media.video && <button onClick={() => { if (video.current?.paused) video.current.play().catch(() => setMessage('Video could not play.')); else video.current?.pause(); }}>PLAY / PAUSE VISUALIZER</button>}</div><span className="preview-label">VISUAL EXPERIENCE PREVIEW · ORIGINAL MEDIA COMING SOON</span><button className="footer-connect" onClick={() => setPanel('Stay connected')}>STAY IN THE ORBIT <Arrow /></button></footer>
-    <p className="status" role="status">{message}</p>
-    {media.audio && <audio ref={audio} src={media.audio} loop preload="none" onError={() => { setPlaying(false); setMessage('Audio is temporarily unavailable.'); }} />}
-    <dialog ref={dialog} onCancel={(event) => { event.preventDefault(); setPanel(null); }} onClick={event => { if (event.target === dialog.current) setPanel(null); }} aria-labelledby="panel-title">
-      <article className="panel"><div className="panel-top"><span className="eyebrow">C.JayMnandi / LAX!</span><button className="close" aria-label="Close overlay" onClick={() => setPanel(null)}>✕</button></div><h2 id="panel-title">{panel === 'Store' ? 'Own the experience.' : panel === 'Stay connected' ? 'Stay in the orbit.' : panel}</h2>
-      {panel === 'Music' && <><p>Step into the world of C.JayMnandi.</p><a className="button" href={spotify} target="_blank" rel="noreferrer">LISTEN ON SPOTIFY <Arrow /></a><p className="note">LAX! artwork, track list and release links will be added when supplied.</p></>}
-      {panel === 'Store' && <><div className="release-card"><span className="release-type">DIGITAL RELEASE</span><strong>LAX!</strong><span>C.JayMnandi</span></div><p>The LAX! digital release is being prepared.</p><p className="note">Price and purchase files are awaiting confirmation. Secure guest checkout through Yoco will open once everything is ready.</p><button className="button" disabled>SALES OPENING SOON</button><p className="note">No payment is collected on this preview.</p></>}
-      {panel === 'Bookings' && <><p>Bring Jupiter Vibez to your stage.</p><p className="note">The official booking contact will be published here once confirmed. Booking enquiries are not collected on this preview.</p></>}
-      {panel === 'About' && <><p className="large-copy">From Stinkwater.<br />In his own orbit.</p><p>Kamogelo “C.JayMnandi” Mkhwebane is from Stinkwater, Hammanskraal. His creative persona is Jupiter Vibez.</p><p className="note">More of the story is on the way.</p></>}
-      {panel === 'Stay connected' && <><p>Music. New releases. The next chapter.</p><a className="button" href={spotify} target="_blank" rel="noreferrer">FOLLOW ON SPOTIFY <Arrow /></a><p className="note">Mailing-list and WhatsApp updates are coming once the official channels are confirmed. Joining will always be optional.</p></>}
-      <div className="panel-foot">THE LAX! EXPERIENCE <span><Arrow /></span></div></article>
-    </dialog>
-  </main>;
+const spotify='https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni';
+const linktree='https://linktr.ee/C.JayMnandi';
+type Panel='music'|'store'|'bookings'|'about'|'connect'|null;
+const labels: {key:Exclude<Panel,null>;name:string}[]=[{key:'music',name:'MUSIC'},{key:'store',name:'STORE'},{key:'bookings',name:'BOOKINGS'},{key:'about',name:'ABOUT'},{key:'connect',name:'CONNECT'}];
+export default function Home(){
+ const [panel,setPanel]=useState<Panel>(null),[sound,setSound]=useState(false),[videoReady,setVideoReady]=useState(false),[videoFailed,setVideoFailed]=useState(false),[audioFailed,setAudioFailed]=useState(false),[menu,setMenu]=useState(false);
+ const [price,setPrice]=useState(''),[email,setEmail]=useState(''),[notice,setNotice]=useState('');
+ const video=useRef<HTMLVideoElement>(null),audio=useRef<HTMLAudioElement>(null),dialog=useRef<HTMLDialogElement>(null);
+ useEffect(()=>{const v=video.current;if(!v)return;v.play().catch(()=>{});},[]);
+ useEffect(()=>{if(!dialog.current)return;if(panel&&!dialog.current.open)dialog.current.showModal();if(!panel&&dialog.current.open)dialog.current.close();},[panel]);
+ useEffect(()=>{const handler=(e:KeyboardEvent)=>{if(e.key==='Escape'){setPanel(null);setMenu(false)}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler)},[]);
+ async function toggleAudio(){const a=audio.current;if(!a)return;if(sound){a.pause();setSound(false);return}try{a.volume=.7;await a.play();setSound(true);setAudioFailed(false)}catch{setAudioFailed(true)}}
+ function open(p:Panel){setMenu(false);setPanel(p);setNotice('')}
+ function checkout(){setNotice('Secure Yoco checkout is not connected yet. No payment has been taken.');}
+ return <main className="lax-app">
+  <div className="lax-film" aria-hidden="true"><video ref={video} autoPlay muted playsInline loop preload="auto" poster="/media/lax-cover.jpg" onCanPlay={()=>setVideoReady(true)} onError={()=>setVideoFailed(true)}><source src="/media/visualizer.mp4" type="video/mp4"/></video><div className="lax-film-wash"/></div>
+  <audio ref={audio} src="/media/ReelAudio-11318.mp3" loop preload="auto" onEnded={()=>setSound(false)} onError={()=>setAudioFailed(true)}/>
+  <header className="lax-header"><a href="/" className="lax-wordmark" onClick={e=>{e.preventDefault();open(null)}}>C.JayMnandi<span>JUPITER VIBEZ</span></a><nav className={menu?'lax-nav is-open':'lax-nav'} aria-label="Website navigation">{labels.map(x=><button key={x.key} onClick={()=>open(x.key)}>{x.name}</button>)}</nav><div className="lax-header-actions"><button className="lax-outline lax-top-buy" onClick={()=>open('store')}>BUY LAX!</button><button className="lax-menu" aria-label="Toggle navigation" aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?'CLOSE':'MENU'} <span>☰</span></button></div></header>
+  <section className="lax-hero" aria-labelledby="lax-title"><div className="lax-intro"><span className="lax-kicker">THE OFFICIAL EP EXPERIENCE</span><span className="lax-small-line"/></div><div className="lax-center"><span className="lax-artist">C.JayMnandi presents</span><h1 id="lax-title">LAX<span>!</span></h1><p className="lax-subtitle">A WORLD OF HIS OWN · JUPITER VIBEZ</p><div className="lax-actions"><button className="lax-outline lax-primary" onClick={()=>open('store')}>BUY THE EP <span>↗</span></button><button className="lax-outline" onClick={()=>open('music')}>EXPLORE THE MUSIC <span>↗</span></button></div></div><div className="lax-hero-foot"><span>STINKWATER · HAMMANSKRAAL · JUPITER</span><span>THE VISUALIZER IS THE EXPERIENCE</span></div></section>
+  <footer className="lax-footer"><button className="lax-audio" onClick={toggleAudio} aria-pressed={sound}><span className="lax-sound-symbol">{sound?'◖))':'◖)'}</span> SOUND {sound?'ON':'OFF'} <span className={sound?'lax-eq active':'lax-eq'}>▂▅▃▇▂</span></button><span className="lax-footer-center">LAX! · C.JayMnandi</span><button onClick={()=>open('connect')}>STAY CONNECTED ↗</button></footer>
+  {(videoFailed||audioFailed)&&<div className="lax-media-notice" role="status">{videoFailed?'Visualizer media needs to be uploaded to /public/media/visualizer.mp4. ':''}{audioFailed?'Audio needs to be uploaded to /public/media/ReelAudio-11318.mp3.':''}</div>}
+  <dialog className="lax-dialog" ref={dialog} onClose={()=>setPanel(null)} onCancel={()=>setPanel(null)} onClick={e=>{if(e.target===dialog.current)setPanel(null)}}><div className="lax-panel"><div className="lax-panel-head"><span>C.JayMnandi / LAX! WORLD</span><button onClick={()=>open(null)} aria-label="Close panel">CLOSE ✕</button></div>
+   {panel==='store'&&<><p className="lax-panel-kicker">OWN THE MUSIC</p><h2>TAKE LAX!<br/>WITH YOU.</h2><div className="lax-product"><img src="/media/lax-cover.jpg" alt="LAX! EP official album artwork" onError={e=>{e.currentTarget.style.display='none'}}/><div><span>DIGITAL EP</span><strong>LAX!</strong><p>C.JayMnandi</p><p className="lax-note">Fixed-price digital download. Guest checkout — no account required.</p><label htmlFor="lax-email">EMAIL FOR DELIVERY</label><input id="lax-email" type="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)}/><button className="lax-outline" onClick={checkout}>PAY SECURELY WITH YOCO ↗</button><p className="lax-note">Price and Yoco integration pending. Payments are not live.</p></div></div></>}
+   {panel==='music'&&<><p className="lax-panel-kicker">THE SOUND</p><h2>LAX!</h2><p>C.JayMnandi brings a fresh visual experience with the official “Lax!” visualizer — music, cinematography, styling and visual artistry working together.</p><div className="lax-panel-actions"><button className="lax-outline" onClick={()=>open('store')}>BUY THE EP ↗</button><a className="lax-outline" href={spotify} target="_blank" rel="noreferrer">LISTEN ON SPOTIFY ↗</a></div></>}
+   {panel==='about'&&<><p className="lax-panel-kicker">THE ARTIST</p><h2>JUPITER<br/>VIBEZ.</h2><p>Kamogelo “C.JayMnandi” Mkhwebane, born on 29 February 2000, is an artist from Stinkwater, Hammanskraal.</p><p>“An alien from planet Jupiter, sent to colonise your mind with super nice vibes ‘Jupiter Vibez’ using music as a medium to do so.”</p><p>His journey includes collaborations and recognition across South African music and culture, with airplay on Metro FM, YFM and community radio.</p></>}
+   {panel==='bookings'&&<><p className="lax-panel-kicker">LIVE & COLLABORATIONS</p><h2>BOOK<br/>C.JayMnandi.</h2><p>For performances, appearances and creative collaborations, reach the artist through his official channels.</p><a className="lax-outline" href={linktree} target="_blank" rel="noreferrer">OPEN OFFICIAL CONTACT LINKS ↗</a><p className="lax-note">A dedicated booking form will be connected once the official booking address is confirmed.</p></>}
+   {panel==='connect'&&<><p className="lax-panel-kicker">STAY IN THE ORBIT</p><h2>KEEP IN<br/>TOUCH.</h2><p>Follow the music and get the latest from C.JayMnandi.</p><div className="lax-panel-actions"><a className="lax-outline" href={linktree} target="_blank" rel="noreferrer">OFFICIAL LINKS ↗</a><a className="lax-outline" href={spotify} target="_blank" rel="noreferrer">SPOTIFY ↗</a></div><p className="lax-note">Mailing list and WhatsApp opt-in will be added once their official destinations are supplied. Sign-up is always optional.</p></>}
+   {notice&&<p className="lax-notice" role="status">{notice}</p>}
+   <div className="lax-panel-bottom">LAX! — THE OFFICIAL EXPERIENCE <span>✳</span></div></div></dialog>
+ </main>
 }
