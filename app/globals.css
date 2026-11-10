@@ -25,12 +25,12 @@
 .lax-arrow{display:inline-block;width:13px;height:13px;vertical-align:middle;flex-shrink:0}
 .lax-header{z-index:3}
 @media(max-width:550px){.lax-footer{flex-wrap:nowrap;gap:8px;padding:16px 5vw}.lax-footer button{font-size:7px;letter-spacing:.06em;min-height:30px}.lax-audio{gap:5px}.lax-sound-symbol{font-size:13px}.lax-eq{display:none}}
-/* Borderless CTAs, glass windows and a 25% sunflower tint on panel type. */
+/* Borderless CTAs, solid album-green windows and warm panel type. */
 .lax-outline,.lax-outline:disabled,.lax-panel-head button,.lax-menu{border:0;background:transparent;box-shadow:none}
 .lax-outline:disabled:hover{border:0}.lax-outline span:empty{display:none}
 .lax-dialog{background:transparent;box-shadow:0 24px 100px #0005;overflow:visible}
-.lax-panel{background:rgb(0 80 40 / 80%);color:#fdf0c0;border:1px solid #ffffff25;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);max-height:90svh;animation:window-in .32s cubic-bezier(.2,.75,.25,1) both}
-.lax-dialog::backdrop{background:#0003;backdrop-filter:blur(3px);animation:veil-in .3s ease both}
+.lax-panel{background:var(--green);color:#fdf0c0;border:1px solid #ffffff25;backdrop-filter:none;-webkit-backdrop-filter:none;max-height:90svh;animation:window-in .32s cubic-bezier(.2,.75,.25,1) both}
+.lax-dialog::backdrop{background:#0008;backdrop-filter:none;animation:veil-in .3s ease both}
 .lax-dialog.is-closing .lax-panel{animation:window-out .22s ease both}.lax-dialog.is-closing::backdrop{animation:veil-out .22s ease both}
 @keyframes window-in{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes window-out{to{opacity:0;transform:translateY(16px) scale(.98)}}
