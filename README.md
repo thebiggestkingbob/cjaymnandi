@@ -34,4 +34,4 @@ Run the production server with `npm start`.
 
 Vercel: select the Next.js framework preset, repository root directory, and default build/output settings. No environment variables are required for this preview. Checkout, mailing-list collection and WhatsApp remain unavailable until their details and secure integrations are provided.
 
-The client handover checklist is available as `CLIENT_CONTENT_REQUEST.html`. Original media placement is documented in `public/media-readme.txt`. The preview uses neutral colours until the exact green can be sampled from approved artwork.
+The client handover checklist is available as `CLIENT_CONTENT_REQUEST.html`. Media processing and placement are documented in `public/media-readme.txt`. The site uses album green `#005028`, Helvetica-first typography, and the supplied visualizer with a separate, synchronized audio loop. Audio starts only on user activation. Checkout remains disabled until price, fulfilment and Yoco credentials are configured.
