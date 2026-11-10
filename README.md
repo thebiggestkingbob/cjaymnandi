@@ -19,3 +19,19 @@ Build in Codex using Next.js/TypeScript. First milestone: responsive full-screen
 
 ## Assets
 Use the user-supplied LAX! visualizer, artwork and audio. These media files have not yet been committed to this repository; do not replace them with fabricated artist portraits or music.
+
+## Run the website
+
+Requires Node.js 20.9 or newer (validated with Node.js 24).
+
+```sh
+npm ci
+npm run dev
+```
+
+For production validation, run `npm run build` and `npm run typecheck`.
+Run the production server with `npm start`.
+
+Vercel: select the Next.js framework preset, repository root directory, and default build/output settings. No environment variables are required for this preview. Checkout, mailing-list collection and WhatsApp remain unavailable until their details and secure integrations are provided.
+
+The client handover checklist is available as `CLIENT_CONTENT_REQUEST.html`. Original media placement is documented in `public/media-readme.txt`. The preview uses neutral colours until the exact green can be sampled from approved artwork.
