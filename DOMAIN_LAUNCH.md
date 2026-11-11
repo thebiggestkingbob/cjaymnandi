@@ -34,3 +34,7 @@ After activation: verify the primary domain, www redirect, HTTPS, and that no do
 ## Motion
 
 Only changing digits slide/fade into place. The page has a short staggered entrance, gentle digit hover lift and understated link underlines. All animations and transitions are disabled by the global reduced-motion preference rule. No animation is needed for the timer to function.
+
+## Video-led countdown design
+
+The timer is the large central stage element, with the landing visualizer behind it and a black scrim for contrast. No green tint is applied to the film. It starts muted where autoplay is allowed; reduced-motion and data-saving preferences keep the still poster until the visitor chooses Play Film. A pause control is available in the footer.

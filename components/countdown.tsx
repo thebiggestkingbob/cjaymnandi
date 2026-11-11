@@ -1,9 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { launchAt, launchHosts, launchLabel, remainingTime } from '../lib/launch/schedule';
 
 export default function Countdown({serverNow}: {serverNow: number}) {
   const [time, setTime] = useState<ReturnType<typeof remainingTime> | null>(null);
+  const [playing, setPlaying] = useState(false), [mediaError, setMediaError] = useState(false);
+  const video = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const started = performance.now();
     const tick = () => {
@@ -13,15 +15,33 @@ export default function Countdown({serverNow}: {serverNow: number}) {
     tick(); const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [serverNow]);
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
+    if (!motion.matches && !connection?.saveData) video.current?.play().catch(() => {});
+    const onMotionChange = () => { if (motion.matches) video.current?.pause(); };
+    motion.addEventListener('change', onMotionChange);
+    return () => motion.removeEventListener('change', onMotionChange);
+  }, []);
+  function toggleVideo() {
+    const film = video.current; if (!film) return;
+    if (film.paused) film.play().catch(() => setMediaError(true)); else film.pause();
+  }
   const units = [['days', time?.days], ['hours', time?.hours], ['minutes', time?.minutes], ['seconds', time?.seconds]] as const;
   return <main className="launch-page">
-    <div className="launch-art" aria-hidden="true"/>
+    <div className="launch-art" aria-hidden="true">
+      <video ref={video} muted loop playsInline preload="none" poster="/media/visualizer-poster.jpg"
+        onPlay={() => {setPlaying(true);setMediaError(false);}} onPause={() => setPlaying(false)} onError={() => {setMediaError(true);setPlaying(false);}}>
+        <source src="/media/visualizer.mp4" type="video/mp4"/>
+      </video>
+    </div>
     <header className="launch-header"><span>C.JayMnandi</span><span>JUPITER VIBEZ</span></header>
     <section className="launch-content" aria-labelledby="launch-title">
-      <p className="launch-kicker">THE WORLD OPENS ON FRIDAY THE 13TH</p>
-      <h1 id="launch-title">LAX!</h1>
-      <p className="launch-subtitle">A world of his own. Almost yours.</p>
-      <time className="launch-date" dateTime={launchAt}>{launchLabel}</time>
+      <div className="launch-intro-copy">
+        <p className="launch-kicker">THE WORLD OPENS ON FRIDAY THE 13TH</p>
+        <h1 id="launch-title">LAX!</h1>
+        <p className="launch-subtitle">A world of his own. Almost yours.</p>
+      </div>
       {time?.total === 0 ? <p className="launch-arrived">The time has arrived.</p> : <div className="launch-clock" role="timer" aria-live="off" aria-label="Time until the LAX! experience opens">
         {units.map(([label, value]) => <div key={label} className="launch-time-unit">
           <span className="launch-digit">{(value === undefined ? '––' : String(value).padStart(2, '0')).split('').map((digit, index) =>
@@ -29,9 +49,13 @@ export default function Countdown({serverNow}: {serverNow: number}) {
           )}</span><span className="launch-unit">{label}</span>
         </div>)}
       </div>}
-      <p className="launch-invitation">Until then, stay in the orbit.</p>
-      <a className="launch-link" href="https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni" target="_blank" rel="noreferrer">LISTEN TO C.JayMnandi</a>
+      <div className="launch-details">
+        <time className="launch-date" dateTime={launchAt}>{launchLabel}</time>
+        <p className="launch-invitation">Until then, stay in the orbit.</p>
+        <a className="launch-link" href="https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni" target="_blank" rel="noreferrer">LISTEN TO C.JayMnandi</a>
+        {mediaError && <p className="launch-media-error" role="status">The film is temporarily unavailable.</p>}
+      </div>
     </section>
-    <footer className="launch-footer"><span>STINKWATER · HAMMANSKRAAL · JUPITER</span><a href="/privacy">PRIVACY</a></footer>
+    <footer className="launch-footer"><span>STINKWATER · HAMMANSKRAAL · JUPITER</span><button className="launch-video-toggle" onClick={toggleVideo} aria-pressed={playing}>{playing ? 'PAUSE FILM' : 'PLAY FILM'}</button><a href="/privacy">PRIVACY</a></footer>
   </main>;
 }
