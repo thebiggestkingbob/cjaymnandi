@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import SocialLinks from './social-links';
 import VisualizerModal from './visualizer-modal';
+import MailingModal from './mailing-modal';
 import { launchAt, launchHosts, launchLabel, remainingTime } from '../lib/launch/schedule';
 
-export default function Countdown({serverNow}: {serverNow: number}) {
+export default function Countdown({serverNow,contactFormsEnabled=false}: {serverNow: number;contactFormsEnabled?:boolean}) {
   const [time, setTime] = useState<ReturnType<typeof remainingTime> | null>(null);
   const [playing, setPlaying] = useState(false), [mediaError, setMediaError] = useState(false);
   const [playerOpen,setPlayerOpen]=useState(false);
+  const [updatesOpen,setUpdatesOpen]=useState(false);
   const watching=useRef(false),resumeFilm=useRef(false);
   const clockMotion=useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -31,7 +33,7 @@ export default function Countdown({serverNow}: {serverNow: number}) {
   }, []);
   function resetTilt(){clockMotion.current?.style.setProperty('--clock-tilt-x','0deg');clockMotion.current?.style.setProperty('--clock-tilt-y','0deg');}
   function moveClock(event: PointerEvent<HTMLElement>){
-    if(playerOpen||event.pointerType!=='mouse'||!window.matchMedia('(hover: hover) and (pointer: fine)').matches||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(playerOpen||updatesOpen||event.pointerType!=='mouse'||!window.matchMedia('(hover: hover) and (pointer: fine)').matches||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const x=Math.max(-1,Math.min(1,(event.clientX/window.innerWidth-.5)*2));
     const y=Math.max(-1,Math.min(1,(event.clientY/window.innerHeight-.5)*2));
     clockMotion.current?.style.setProperty('--clock-tilt-x',`${(-y*1.8).toFixed(2)}deg`);
@@ -68,10 +70,11 @@ export default function Countdown({serverNow}: {serverNow: number}) {
       <div className="launch-details">
         <time className="launch-date" dateTime={launchAt}>{launchLabel}</time>
         <p className="launch-invitation">Until then, stay in the orbit.</p>
-        <div className="launch-actions"><button className="launch-link" type="button" onClick={openPlayer}>WATCH VISUALIZER</button><a className="launch-link" href="https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni" target="_blank" rel="noreferrer">LISTEN ON SPOTIFY</a></div><SocialLinks/>
+        <div className="launch-actions"><button className="launch-link" type="button" onClick={()=>{setUpdatesOpen(true);resetTilt();}}>STAY UPDATED</button><button className="launch-link" type="button" onClick={openPlayer}>WATCH VISUALIZER</button><a className="launch-link" href="https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni" target="_blank" rel="noreferrer">LISTEN ON SPOTIFY</a></div><SocialLinks/>
         {mediaError && <p className="launch-media-error" role="status">The film is temporarily unavailable.</p>}
       </div>
     </section>
+    <MailingModal open={updatesOpen} onClose={()=>setUpdatesOpen(false)} enabled={contactFormsEnabled}/>
     <VisualizerModal open={playerOpen} onClose={closePlayer}/>
     <footer className="launch-footer"><span>STINKWATER · HAMMANSKRAAL · JUPITER</span><button className="launch-video-toggle" onClick={toggleVideo} aria-pressed={playing}>{playing ? 'PAUSE FILM' : 'PLAY FILM'}</button><a href="/privacy">PRIVACY</a></footer>
   </main>;

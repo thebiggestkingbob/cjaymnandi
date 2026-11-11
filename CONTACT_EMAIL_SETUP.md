@@ -58,7 +58,7 @@ A set of flags is not evidence: approve them only after the corresponding checks
 
 ## Webhook and reliable retries
 
-Configure `https://www.cjaymnandi.co.za/api/email/events` in Resend for delivered, bounced, complained, failed and suppressed events, and save its signing secret. These preference/delivery endpoints bypass the countdown gate; signature/capability/Bearer checks still apply.
+Configure `https://www.cjaymnandi.co.za/api/email/events` in Resend for delivered, bounced, complained, failed and suppressed events, and save its signing secret. The countdown includes a STAY UPDATED signup dialog using the same server-gated contact form as the full experience. The contact API and these preference/delivery endpoints bypass the countdown page rewrite; signature/capability/Bearer checks still apply.
 
 New submissions start a bounded post-response worker using Next.js `after()`. Also configure an authenticated scheduler to GET `/api/email/dispatch` approximately every two minutes with `Authorization: Bearer <CRON_SECRET>`. Verify scheduling before approving its flag. No schedule is automatically installed: Vercel Hobby's daily cron limit is insufficient for this retry policy; use an appropriate plan or an external authenticated scheduler. Do not put the secret in query strings.
 

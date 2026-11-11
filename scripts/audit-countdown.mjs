@@ -6,7 +6,7 @@ import { remainingTime, shouldShowCountdown } from '../lib/launch/schedule.ts';
 const base = new URL(process.argv[2] || 'http://127.0.0.1:3020');
 if (!['127.0.0.1','localhost'].includes(base.hostname)) throw new Error('Run hostname-routing checks against a local server only.');
 const get = (path,host,method='GET') => new Promise((resolve,reject)=>{
-  const req=request(new URL(path,base),{method,headers:{host}},res=>{let body='';res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body}))});req.on('error',reject);req.end();
+  const req=request(new URL(path,base),{method,headers:{host,...(method==='POST'?{origin:`http://${host}`,'content-type':'application/json'}:{})}},res=>{let body='';res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode,headers:res.headers,body}))});req.on('error',reject);req.end();
 });
 for(const host of ['cjaymnandi.co.za','www.cjaymnandi.co.za']){
   for(const path of ['/','/archive']){
@@ -16,7 +16,7 @@ for(const host of ['cjaymnandi.co.za','www.cjaymnandi.co.za']){
   }
   const privacy=await get('/privacy',host);assert.equal(privacy.status,200);assert.ok(privacy.body.includes('Privacy.'));
   const cover=await get('/media/lax-cover.jpg',host,'HEAD');assert.equal(cover.status,200);assert.match(cover.headers['content-type'],/image\/jpeg/);
-  if(shouldShowCountdown(host)){const api=await get('/api/contact',host,'POST');assert.equal(api.status,503);assert.match(api.body,/00:00 SAST/);}
+  if(shouldShowCountdown(host)){const api=await get('/api/contact',host,'POST');assert.equal(api.status,503);assert.match(api.body,/message/);}
 }
 const review=await get('/','cjaymnandi.vercel.app');assert.equal(review.status,200);assert.ok(review.body.includes('WELCOME TO THE WORLD OF'));
 const browser=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
@@ -60,6 +60,14 @@ try {
       assert.notEqual(tilt,'0deg');const tilted=await page.locator('.launch-clock').boundingBox();assert.ok(Math.abs(tilted.x+tilted.width/2-viewport.width/2)<20,'pointer tilt stays centre anchored');
       await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('video').paused);assert.equal(await page.locator('.launch-clock-motion').evaluate(e=>getComputedStyle(e).transform),'none');await page.emulateMedia({reducedMotion:'no-preference'});await page.getByRole('button',{name:'PLAY FILM',exact:true}).click();
     }
+    const updates=page.getByRole('button',{name:'STAY UPDATED',exact:true});
+    await updates.click();
+    const mailing=page.getByRole('dialog',{name:'STAY IN THE ORBIT.'});await mailing.waitFor();
+    assert.equal(await mailing.getByLabel('EMAIL ADDRESS',{exact:true}).isDisabled(),true);
+    assert.equal(await mailing.getByRole('checkbox').isChecked(),false);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await page.keyboard.press('Escape');await mailing.waitFor({state:'hidden'});
+    assert.equal(await updates.evaluate(e=>e===document.activeElement),true);
     const clockBefore=await page.locator('.launch-digit').allTextContents();
     const watch=page.getByRole('button',{name:'WATCH VISUALIZER',exact:true});
     if(viewport.width>1000)assert.match(await watch.evaluate(e=>getComputedStyle(e).cursor),/32 32/);
@@ -76,5 +84,5 @@ try {
     await page.waitForTimeout(300);
     await page.screenshot({path:`/tmp/cjay-countdown-${viewport.width}.png`,fullPage:true});await page.close();
   }
-  console.log('PASS: custom-domain countdown/root and archive routing, privacy/assets, prelaunch API gate, review-host isolation, no-cache, desktop/mobile large centred clock, real video, black overlay, pause/resume, reduced-motion pause, skewed visitor time and a foreign timezone; social links/icons, centre-anchored pointer tilt, larger sunflower cursor, YouTube modal lifecycle and uninterrupted countdown. YouTube iframe content stubbed; actual external playback not verified.');
+  console.log('PASS: custom-domain countdown/root and archive routing, privacy/assets, disabled contact API safeguard, signup dialog/consent/focus return, review-host isolation, no-cache, desktop/mobile large centred clock, real video, black overlay, pause/resume, reduced-motion pause, skewed visitor time and a foreign timezone; social links/icons, centre-anchored pointer tilt, larger sunflower cursor, YouTube modal lifecycle and uninterrupted countdown. YouTube iframe content stubbed; actual external playback not verified.');
 } finally {await browser.close();}
