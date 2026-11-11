@@ -1,6 +1,6 @@
 // Explicit offset keeps the launch correct regardless of server/browser timezone.
-export const launchAt = '2026-11-13T12:00:00+02:00';
-export const launchLabel = 'Friday, 13 November 2026 · 12:00 SAST';
+export const launchAt = '2026-11-18T00:00:00+02:00';
+export const launchLabel = 'Wednesday, 18 November 2026 · 00:00 SAST';
 export const launchHosts = ['cjaymnandi.co.za', 'www.cjaymnandi.co.za'];
 
 export function remainingTime(now = Date.now()) {
