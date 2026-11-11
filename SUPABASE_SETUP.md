@@ -44,3 +44,7 @@ npm run typecheck
 These forms store requests; they do not send booking notifications, confirm bookings, subscribe anyone with a mailing provider, or send newsletters. Select the mail provider, configure the sending domain, test delivery and implement unsubscribe/suppression handling before sending broadcasts. Keep mailing consent separate from booking and purchase requests.
 
 Yoco payments, order fulfilment, private download storage and payment emails are not implemented. Supabase configuration does not enable checkout.
+
+## Check from Vercel itself
+
+Use `/review` on the project's Vercel hostname and run **Check connection & readiness** when cloud-workspace egress or credentials prevent agent-side validation. This checks the deployed environment, not the local workspace. The read-only result never returns keys or customer rows and cannot activate forms. See `VERCEL_REVIEW.md` for limits and walkthrough links.

@@ -8,8 +8,10 @@ if (!url || !key) {
 try {
   const endpoint = new URL('/rest/v1/', url);
   if (endpoint.protocol !== 'https:') throw new Error('Supabase URL must use HTTPS.');
+  const headers = { apikey: key, Accept: 'application/openapi+json' };
+  if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`;
   const response = await fetch(endpoint, {
-    headers: { apikey: key, Accept: 'application/openapi+json' },
+    headers,
     signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) {

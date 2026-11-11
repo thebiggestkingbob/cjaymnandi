@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Archive from './archive';
 import ContactForm from './contact-form';
+import type { Panel } from '../lib/site/navigation';
 const spotify='https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni';
 const linktree='https://linktr.ee/C.JayMnandi';
-type Panel='support'|'archive'|'music'|'store'|'bookings'|'about'|'connect'|null;
 const labels: {key:Exclude<Panel,null>;name:string}[]=[{key:'music',name:'MUSIC'},{key:'archive',name:'ARCHIVE'},{key:'store',name:'STORE'},{key:'bookings',name:'BOOKINGS'},{key:'about',name:'ABOUT'},{key:'connect',name:'CONNECT'}];
 export default function Experience({initialPanel=null,contactFormsEnabled=false,supportEmail=''}:{initialPanel?:Panel;contactFormsEnabled?:boolean;supportEmail?:string}){
  const [panel,setPanel]=useState<Panel>(initialPanel),[sound,setSound]=useState(false),[videoPlaying,setVideoPlaying]=useState(false),[videoFailed,setVideoFailed]=useState(false),[audioFailed,setAudioFailed]=useState(false),[menu,setMenu]=useState(false);

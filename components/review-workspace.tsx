@@ -1,0 +1,23 @@
+'use client';
+import { useState } from 'react';
+import type { ReviewReport } from '../lib/review/checks';
+const steps = [
+  {title:'Landing & media',href:'/',detail:'Check the film, sound toggle, pause/resume, mobile crop and keyboard navigation.'},
+  {title:'Music',href:'/?panel=music',detail:'Check release copy and the path into the Archive.'},
+  {title:'Archive',href:'/archive',detail:'Play both Spotify releases and all three videos. Check the direct-link fallbacks.'},
+  {title:'Store',href:'/?panel=store',detail:'Check the official cover and purchase copy. Checkout must stay disabled until payments and delivery are verified.'},
+  {title:'Bookings',href:'/?panel=bookings',detail:'Review the form and contact links. Only submit a labelled test enquiry once the live database and privacy checks pass.'},
+  {title:'About',href:'/?panel=about',detail:'Confirm the biography, credits and public artist details.'},
+  {title:'Connect',href:'/?panel=connect',detail:'Check optional mailing consent and official links. WhatsApp destination and the email workflow still need confirmation.'},
+  {title:'Support & privacy',href:'/?panel=support',detail:'Review support guidance, the public contact email and the privacy notice before enabling data collection.'},
+];
+export default function ReviewWorkspace(){
+  const [report,setReport]=useState<ReviewReport|null>(null),[pending,setPending]=useState(false),[error,setError]=useState('');
+  async function runCheck(){setPending(true);setError('');try{const response=await fetch('/api/review',{method:'POST',signal:AbortSignal.timeout(20000)});if(!response.ok)throw new Error();setReport(await response.json());}catch{setError('The check could not complete. Try again or check the deployment logs.');}finally{setPending(false)}}
+  return <main className="review-workspace"><header><p className="review-kicker">C.JayMnandi / WORKING SITE</p><h1>Review the<br/>whole experience.</h1><p>This is the Vercel review site. The custom domain keeps its countdown until Friday, 13 November at 12:00 SAST.</p><p className="review-note">This page is not an authenticated admin area. It shows only a non-sensitive readiness summary. It cannot read customer records, write submissions, run migrations or enable features.</p></header>
+    <section aria-labelledby="runtime-heading"><h2 id="runtime-heading">1. Check the live environment</h2><p>Run this on Vercel to test its own Supabase settings. No secrets or customer records are displayed.</p><button className="lax-outline" onClick={runCheck} disabled={pending}>{pending?'CHECKING…':'CHECK CONNECTION & READINESS'}</button><p role="status" aria-live="polite">{pending?'Checking the deployment’s configuration…':error}</p>
+      {report&&<><dl className="readiness-results">{([['connection','Supabase connection'],['schema','Contact database'],['forms','Contact forms'],['checkout','Payments'],['email','Email handling']] as const).map(([key,title])=><div key={key}><dt>{title}<span>{report[key].status==='ready'?'CHECK PASSED':report[key].status==='unavailable'?'NEEDS ATTENTION':'SETUP PENDING'}</span></dt><dd>{report[key].message}</dd></div>)}</dl>{report.missing.length>0&&<details><summary>Required settings still missing or disabled</summary><ul>{report.missing.map(name=><li key={name}><code>{name}</code></li>)}</ul><p>Add keys through secure environment settings, never chat. Do not enable forms until live checks and privacy review pass.</p></details>}</>}
+    </section><section aria-labelledby="walkthrough-heading"><h2 id="walkthrough-heading">2. Walk through the site</h2><p>Each section opens in a separate tab, so this checklist stays available. Test desktop and mobile before marking a feature ready.</p><ol className="review-steps">{steps.map(step=><li key={step.title}><a href={step.href} target="_blank" rel="noreferrer">{step.title}<span>OPEN SECTION</span></a><p>{step.detail}</p></li>)}</ol></section>
+    <section><h2>3. Resolve the launch requirements</h2><ul><li>Public booking/support email, operator name, and approved privacy/consent wording.</li><li>Both Supabase migrations and a server-only secret key; then controlled live form tests.</li><li>Who monitors requests, email notifications, newsletter provider, and unsubscribe handling.</li><li>Final price/currency, purchase files, Yoco test credentials, refund terms and secure download fulfilment.</li><li>Official WhatsApp destination and the featured video’s title and credits.</li></ul><p><a href="/privacy" target="_blank" rel="noreferrer">Open the privacy draft</a> · <a href="/countdown" target="_blank" rel="noreferrer">Review the countdown</a></p></section>
+  </main>;
+}
