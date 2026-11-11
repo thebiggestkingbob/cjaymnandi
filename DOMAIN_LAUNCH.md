@@ -38,3 +38,9 @@ Only changing digits slide/fade into place. The page has a short staggered entra
 ## Video-led countdown design
 
 The timer is the large central stage element, with the landing visualizer behind it and a black scrim for contrast. No green tint is applied to the film. It starts muted where autoplay is allowed; reduced-motion and data-saving preferences keep the still poster until the visitor chooses Play Film. A pause control is available in the footer.
+
+## Watch and connect during the countdown
+
+The Watch Visualizer action opens the official YouTube video `OlXTom_jz-s` in a website player, with a direct YouTube fallback. Opening it pauses the local background film; closing removes the iframe and resumes the background only if it was previously playing and motion/data preferences allow it. The timer continues while watching, and a viewer is not redirected mid-video when the deadline arrives; the normal launch redirect resumes after the player is closed.
+
+The countdown includes the supplied Instagram, X and TikTok profiles as labelled icon links. On fine mouse pointers the clock tilts gently around its centre, resetting when the pointer leaves. Touch and reduced-motion users get a stationary clock. The sunflower cursor is 64px for a more visible hover cue.
