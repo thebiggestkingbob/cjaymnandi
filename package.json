@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "supabase:check": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:e2e": "node scripts/audit-site.mjs"
+    "test:e2e": "node scripts/audit-site.mjs",
+    "verify:live": "node --env-file-if-exists=.env.local scripts/verify-contact-live.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

@@ -14,7 +14,7 @@ try{
     assert.equal(await page.locator('.review-steps>li').count(),8);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`/tmp/cjay-review-${viewport.width}.png`,fullPage:true});
-    for(const panel of ['music','archive','store','bookings','about','connect','support']){
+    for(const panel of ['music','archive','store','bookings','about','connect','support','shop','events']){
       await page.goto(new URL(`/?panel=${panel}`,base).href);await page.locator('dialog[open]').waitFor();
       if(panel==='store')assert.equal(await page.getByRole('button',{name:'CHECKOUT COMING SOON'}).isDisabled(),true);
       if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),5);

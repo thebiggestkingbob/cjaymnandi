@@ -6,7 +6,7 @@ try{
   const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   for(const width of [320,390,768,1440]){
     await page.setViewportSize({width,height:900});await page.goto(base);
-    if(width<850){await page.getByRole('button',{name:'Toggle navigation'}).click();await page.keyboard.press('Escape');assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).getAttribute('aria-expanded'),'false');assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);await page.getByRole('button',{name:'Toggle navigation'}).click();}
+    if(width<1100){await page.getByRole('button',{name:'Toggle navigation'}).click();await page.keyboard.press('Escape');assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).getAttribute('aria-expanded'),'false');assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);await page.getByRole('button',{name:'Toggle navigation'}).click();}
     await page.getByRole('navigation').getByRole('button',{name:'MUSIC',exact:true}).click();await page.locator('dialog[open]').waitFor();
     await page.locator('dialog audio').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.getByRole('button',{name:'Close panel'}).focus();for(let i=0;i<8;i++){await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>Boolean(document.activeElement?.closest('dialog'))),true);}

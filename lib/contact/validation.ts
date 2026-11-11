@@ -30,5 +30,5 @@ export function validateContact(input: unknown, today = new Intl.DateTimeFormat(
       return { ok: false, message: 'Choose a valid event date today or in the future, or leave it blank.' };
     }
   }
-  return { ok: true, kind, payload: { email, name, message, location: location || null, event_date: date || null }, honeypot: false };
+  return { ok: true, kind, payload: { email, name, message, location: location || null, event_date: date || null, consent: data.consent===true }, honeypot: false };
 }

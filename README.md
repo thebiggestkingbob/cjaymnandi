@@ -44,4 +44,4 @@ Run `npm test` for contact validation and local database tests, and `CHROMIUM_PA
 
 ## Custom-domain countdown
 
-`cjaymnandi.co.za` and `www.cjaymnandi.co.za` display the animated countdown until Friday, 13 November 2026 at 12:00 SAST. Vercel hostnames retain the main site for review. The schedule is isolated in `lib/launch/schedule.ts`; see `DOMAIN_LAUNCH.md` for routing and DNS details. No payment or contact feature is enabled by this countdown.
+`cjaymnandi.co.za` and `www.cjaymnandi.co.za` display the animated countdown until Wednesday, 18 November 2026 at 00:00 SAST. Vercel hostnames retain the main site for review. The schedule is isolated in `lib/launch/schedule.ts`; see `DOMAIN_LAUNCH.md` for routing and DNS details. No payment or contact feature is enabled by this countdown.

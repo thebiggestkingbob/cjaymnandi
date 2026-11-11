@@ -11,12 +11,12 @@ const get = (path,host,method='GET') => new Promise((resolve,reject)=>{
 for(const host of ['cjaymnandi.co.za','www.cjaymnandi.co.za']){
   for(const path of ['/','/archive']){
     const result=await get(path,host);assert.equal(result.status,200);
-    assert.equal(result.body.includes('THE WORLD OPENS ON FRIDAY THE 13TH'),shouldShowCountdown(host));
+    assert.equal(result.body.includes('THE WORLD OPENS ON WEDNESDAY THE 18TH'),shouldShowCountdown(host));
     if(shouldShowCountdown(host))assert.match(result.headers['cache-control'],/no-store/);
   }
   const privacy=await get('/privacy',host);assert.equal(privacy.status,200);assert.ok(privacy.body.includes('Privacy.'));
   const cover=await get('/media/lax-cover.jpg',host,'HEAD');assert.equal(cover.status,200);assert.match(cover.headers['content-type'],/image\/jpeg/);
-  if(shouldShowCountdown(host)){const api=await get('/api/contact',host,'POST');assert.equal(api.status,503);assert.match(api.body,/12:00 SAST/);}
+  if(shouldShowCountdown(host)){const api=await get('/api/contact',host,'POST');assert.equal(api.status,503);assert.match(api.body,/00:00 SAST/);}
 }
 const review=await get('/','cjaymnandi.vercel.app');assert.equal(review.status,200);assert.ok(review.body.includes('WELCOME TO THE WORLD OF'));
 const browser=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
@@ -25,7 +25,7 @@ try {
     const page=await browser.newPage({viewport,timezoneId:'America/New_York',hasTouch:viewport.width<550,isMobile:viewport.width<550});
     await page.route('https://www.youtube.com/embed/**',r=>r.fulfill({body:'<html lang="en"><head><title>YouTube test fixture</title></head><body>External player fixture</body></html>',contentType:'text/html'}));
     await page.addInitScript(()=>{Date.now=()=>0});
-    await page.goto(new URL('/countdown',base).href);await page.waitForFunction(()=>{const v=document.querySelector('.launch-art video');return v&&v.readyState>=3&&!v.paused&&v.currentTime>0});await page.getByText('Friday, 13 November 2026 · 12:00 SAST',{exact:true}).waitFor();
+    await page.goto(new URL('/countdown',base).href);await page.waitForFunction(()=>{const v=document.querySelector('.launch-art video');return v&&v.readyState>=3&&!v.paused&&v.currentTime>0});await page.getByText('Wednesday, 18 November 2026 · 00:00 SAST',{exact:true}).waitFor();
     if(remainingTime().total>0){
       await page.waitForFunction(()=>{const el=document.querySelector('.launch-digit');return el&&/^\d+$/.test(el.textContent||'')});
       const total=async()=>{const [d,h,m,s]=(await page.locator('.launch-digit').allTextContents()).map(Number);return d*86400+h*3600+m*60+s};

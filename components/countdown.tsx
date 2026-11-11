@@ -54,7 +54,7 @@ export default function Countdown({serverNow}: {serverNow: number}) {
     <header className="launch-header"><span>C.JayMnandi</span><span>JUPITER VIBEZ</span></header>
     <section className="launch-content" aria-labelledby="launch-title">
       <div className="launch-intro-copy">
-        <p className="launch-kicker">THE WORLD OPENS ON FRIDAY THE 13TH</p>
+        <p className="launch-kicker">THE WORLD OPENS ON WEDNESDAY THE 18TH</p>
         <h1 id="launch-title">LAX!</h1>
         <p className="launch-subtitle">A world of his own. Almost yours.</p>
       </div>

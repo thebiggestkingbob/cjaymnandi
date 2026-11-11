@@ -21,9 +21,9 @@ try {
     if (contacts) {
       const schema = await response.json();
       const paths = schema.paths || {};
-      const required = ['/mailing_list_signups', '/booking_enquiries', '/contact_rate_limits', '/rpc/submit_site_contact'];
+      const required = ['/mailing_list_signups', '/booking_enquiries', '/contact_rate_limits', '/rpc/submit_site_contact_v2','/contact_email_outbox','/contact_unsubscribe_tokens','/rpc/confirm_contact_subscription','/rpc/unsubscribe_contact','/rpc/claim_contact_emails','/rpc/finish_contact_email','/rpc/record_contact_email_event'];
       if (!required.every(path => Object.hasOwn(paths, path))) {
-        console.error('Connection works, but the required contact schema is not available. Apply both migrations and check server-key permissions.');
+        console.error('Connection works, but the required contact schema is not available. Apply all three migrations and check server-key permissions.');
         process.exitCode = 1;
       } else console.log('Contact tables and submission function are visible to the server key. No records were read or written; an end-to-end submission test is still required.');
     } else console.log('Supabase Data API connection verified. Table permissions and application workflows require separate validation.');

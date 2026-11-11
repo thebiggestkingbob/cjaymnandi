@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { checkProjectReadiness } from '../lib/review/checks.ts';
 import { isReviewHost, parsePanel } from '../lib/site/navigation.ts';
 
-const env={SUPABASE_URL:'https://project.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test',CONTACT_OPERATOR_NAME:'Test operator',CONTACT_SUPPORT_EMAIL:'test@example.com',CONTACT_PRIVACY_APPROVED:'true',CONTACT_FORMS_ENABLED:'true'};
-const paths=Object.fromEntries(['/mailing_list_signups','/booking_enquiries','/contact_rate_limits','/rpc/submit_site_contact'].map(path=>[path,{}]));
+const env={SUPABASE_URL:'https://project.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_test',SUPABASE_SECRET_KEY:'sb_secret_test',CONTACT_OPERATOR_NAME:'Test operator',CONTACT_SUPPORT_EMAIL:'test@example.com',CONTACT_PRIVACY_APPROVED:'true',CONTACT_FORMS_ENABLED:'true',CONTACT_DATABASE_VERIFIED:'true',EMAIL_SENDER_VERIFIED:'true',EMAIL_DELIVERY_VERIFIED:'true',EMAIL_SENDING_ENABLED:'true',RESEND_API_KEY:'re_test',RESEND_WEBHOOK_SECRET:'whsec_test',EMAIL_TOKEN_SECRET:'a'.repeat(32),CRON_SECRET:'test-cron',EMAIL_RETRY_SCHEDULE_VERIFIED:'true'};
+const paths=Object.fromEntries(['/mailing_list_signups','/booking_enquiries','/contact_rate_limits','/rpc/submit_site_contact_v2','/contact_email_outbox','/contact_unsubscribe_tokens','/rpc/confirm_contact_subscription','/rpc/unsubscribe_contact','/rpc/claim_contact_emails','/rpc/finish_contact_email','/rpc/record_contact_email_event'].map(path=>[path,{}]));
 
 test('review checks fail closed without configuration and make no network request',async()=>{
   let calls=0;
@@ -17,7 +17,7 @@ test('readiness probe reads only API schema, reports capabilities, and never ret
   const report=await checkProjectReadiness(env,async(url,init)=>{calls.push({url:String(url),init});return Response.json({paths,customer_data:'must-not-be-returned'});});
   assert.equal(calls.length,2);
   for(const call of calls){assert.equal(call.url,'https://project.supabase.co/rest/v1/');assert.equal(call.init.method,undefined);assert.equal(call.init.redirect,'error');assert.equal(call.init.cache,'no-store');}
-  assert.equal(report.connection.status,'ready');assert.equal(report.schema.status,'ready');assert.equal(report.forms.status,'ready');assert.equal(report.checkout.status,'pending');assert.equal(report.email.status,'pending');
+  assert.equal(report.connection.status,'ready');assert.equal(report.schema.status,'ready');assert.equal(report.forms.status,'ready');assert.equal(report.checkout.status,'pending');assert.equal(report.email.status,'ready');
   const output=JSON.stringify(report);for(const sensitive of ['sb_publishable_test','sb_secret_test','must-not-be-returned'])assert.equal(output.includes(sensitive),false);
 });
 
@@ -35,5 +35,5 @@ test('connection and privacy failures report actionable states without raw provi
 
 test('review host and deep-link parsing reject public domains and unexpected inputs',()=>{
   assert.equal(isReviewHost('cjaymnandi.vercel.app'),true);assert.equal(isReviewHost('cjaymnandi-git-development-team.vercel.app'),true);assert.equal(isReviewHost('127.0.0.1:3000'),true);assert.equal(isReviewHost('www.cjaymnandi.co.za'),false);assert.equal(isReviewHost('cjaymnandi.vercel.app.evil.example'),false);
-  assert.equal(parsePanel('bookings'),'bookings');assert.equal(parsePanel('support'),'support');assert.equal(parsePanel(['store','support']),null);assert.equal(parsePanel('unexpected'),null);
+  assert.equal(parsePanel('bookings'),'bookings');assert.equal(parsePanel('support'),'support');assert.equal(parsePanel('buy'),'store');assert.equal(parsePanel('content'),'archive');assert.equal(parsePanel('home'),null);assert.equal(parsePanel('shop'),'shop');assert.equal(parsePanel('events'),'events');assert.equal(parsePanel(['store','support']),null);assert.equal(parsePanel('unexpected'),null);
 });

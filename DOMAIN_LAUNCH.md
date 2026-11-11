@@ -1,7 +1,7 @@
 # cjaymnandi.co.za — countdown and domain setup
 
-Confirmed launch: **Friday, 13 November 2026 at 12:00 midday South African time**.
-This is **10:00 UTC**, represented as `2026-11-13T12:00:00+02:00` in `lib/launch/schedule.ts`.
+Confirmed launch: **Wednesday, 18 November 2026 at 00:00 midnight South African time**.
+This is **17 November 2026 at 22:00 UTC**, represented as `2026-11-18T00:00:00+02:00` in `lib/launch/schedule.ts`.
 
 ## Deployment behavior
 
@@ -21,13 +21,13 @@ The launch time can be changed in one file and redeployed; it does not change co
 4. In GoDaddy, open the domain's **DNS → Manage DNS**. Add or update the apex (`@`) and `www` records as Vercel instructs. If DNS is hosted elsewhere, make the changes with the authoritative DNS provider instead.
 5. Preserve email (MX), TXT verification/SPF/DKIM and unrelated subdomains. Remove a conflicting A/AAAA/CNAME only for the hostname Vercel identifies. Do not change nameservers just to connect hosting.
 6. Wait for Vercel to show valid configuration and HTTPS certificate readiness, then test both apex and www. A DNS record being saved is not proof of propagation or a valid certificate.
-7. Review the countdown on desktop/mobile and verify the displayed midday SAST deadline. Confirm the reviewed countdown deployment is Ready before announcing the domain.
+7. Review the countdown on desktop/mobile and verify the displayed midnight SAST deadline. Confirm the reviewed countdown deployment is Ready before announcing the domain.
 
 Share a screenshot of the Vercel domain DNS instructions if help matching the GoDaddy fields is needed. No account password is required.
 
 ## Release validation
 
-Before launch: apex root and `/archive` show countdown, static artwork loads, privacy remains readable, and the Vercel review hostname still shows the full experience. On a local fixed-clock test, the gate opens at exactly `2026-11-13T10:00:00Z`, not at midnight or at a visitor's local noon.
+Before launch: apex root and `/archive` show countdown, static artwork loads, privacy remains readable, and the Vercel review hostname still shows the full experience. On a local fixed-clock test, the gate opens at exactly `2026-11-17T22:00:00Z`, at midnight SAST regardless of the visitor's timezone.
 
 After activation: verify the primary domain, www redirect, HTTPS, and that no domain forwarding masks the URL. Confirm live Vercel deployment status separately from DNS readiness.
 

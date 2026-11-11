@@ -2,7 +2,7 @@
 
 Open `https://cjaymnandi.vercel.app/review` after the latest deployment is Ready.
 
-This is the project's production Vercel alias, not an independently configured Vercel Preview deployment. Hostname routing serves the countdown on the custom domain before 13 November 2026 at 12:00 SAST and the working site on Vercel hostnames. Changes still share the same deployment, assets and Production environment variables.
+This is the project's production Vercel alias, not an independently configured Vercel Preview deployment. Hostname routing serves the countdown on the custom domain before 18 November 2026 at 00:00 SAST and the working site on Vercel hostnames. Changes still share the same deployment, assets and Production environment variables.
 
 ## Start with the live read-only check
 

@@ -1,9 +1,13 @@
-import { createHmac } from 'node:crypto';
+import { createHmac, createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import { after } from 'next/server';
+import { prepareMessages } from '../../../lib/email/messages';
+import { dispatchEmails } from '../../../lib/email/worker';
 import { getContactConfig } from '../../../lib/contact/config';
 import { validateContact } from '../../../lib/contact/validation';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 const maxBytes = 32768;
 function reply(status: number, message: string, headers: Record<string, string> = {}) {
   return Response.json({ message }, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
@@ -36,23 +40,32 @@ export async function POST(request: Request) {
   } catch { return reply(400, 'Please check the form and try again.'); }
   const result = validateContact(input);
   if (!result.ok) return reply(400, result.message);
-  const success = result.kind === 'mailing' ? 'Your signup request has been recorded.' : 'Your booking enquiry has been received. This is not a confirmed booking.';
+  const requestId=request.headers.get('idempotency-key')||'';
+  if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId))return reply(400,'Please reload the form and try again.');
+  const success = result.kind === 'mailing' ? 'Your signup request has been recorded. Check your inbox for a confirmation link if needed.' : 'Your booking enquiry has been received. This is not a confirmed booking.';
   if (result.honeypot) return reply(200, success);
   // Vercel supplies this header. Other environments share one conservative rate bucket.
   const ip = process.env.VERCEL ? request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() || 'unknown' : 'local';
-  const clientHash = createHmac('sha256', process.env.SUPABASE_SECRET_KEY!).update(ip).digest('hex');
+  const clientHash = createHmac('sha256', process.env.EMAIL_TOKEN_SECRET!).update(`ip:${ip}`).digest('hex');
   try {
     const client = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
       global: { fetch: (url, options) => fetch(url, { ...options, signal: AbortSignal.timeout(10000) }) },
     });
-    const { error } = await client.rpc('submit_site_contact', {
-      p_kind: result.kind, p_payload: result.payload, p_client_hash: clientHash,
+    const prepared=prepareMessages(result.kind,result.payload,requestId,process.env.EMAIL_TOKEN_SECRET!);
+    const { error } = await client.rpc('submit_site_contact_v2', {
+      p_kind: result.kind,p_payload:result.payload,p_client_hash:clientHash,
+      p_email_hash:createHmac('sha256',process.env.EMAIL_TOKEN_SECRET!).update(`email:${result.payload.email}`).digest('hex'),
+      p_request_id:requestId,p_fingerprint:createHash('sha256').update(`${result.kind}:${JSON.stringify(result.payload)}`).digest('hex'),
+      p_confirmation_hash:prepared.confirmationHash,p_unsubscribe_hash:prepared.unsubscribeHash,p_jobs:prepared.jobs,
     });
     if (error) {
       if (error.code === 'P0001' && error.message === 'contact_rate_limit') return reply(429, 'Please wait ten minutes before sending another request.', { 'Retry-After': '600' });
+      console.error('contact_submission',{reference:requestId,code:error.code||'database_error'});
+      if(error.code==='22023'&&error.message==='request_conflict')return reply(409,'This form changed. Please reload it before retrying.');
       return reply(503, 'We could not save your request. Please try again later or use the official contact links.');
     }
-    return reply(200, success);
-  } catch { return reply(503, 'We could not save your request. Please try again later or use the official contact links.'); }
+    after(async()=>{try{await dispatchEmails()}catch{console.error('contact_email_worker',{code:'dispatch_failed'})}});
+    return Response.json({message:success,reference:requestId},{headers:{'Cache-Control':'no-store','X-Request-ID':requestId}});
+  } catch { console.error('contact_submission',{reference:requestId,code:'request_failed'});return reply(503, 'We could not save your request. Please try again later or use the official contact links.'); }
 }
