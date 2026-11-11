@@ -45,9 +45,19 @@ try {
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
     await page.setViewportSize(viewport);await page.goto(base);
     await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});
+    await page.locator('.lax-audio').dblclick();
+    await page.waitForFunction(()=>document.querySelector('.lax-audio').getAttribute('aria-pressed')===String(!document.querySelector('audio').paused));
+    assert.equal(await page.locator('.lax-media-notice').count(),0);
+    if(!await page.locator('audio').first().evaluate(a=>a.paused))await page.locator('.lax-audio').click();
     await page.getByRole('button',{name:/SOUND OFF/}).click();
     await page.waitForFunction(()=>!document.querySelector('audio').paused&&document.querySelector('audio').currentTime>0);
-    await navigate('MUSIC',viewport.width);await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();assert.equal(await page.locator('audio').evaluate(a=>a.paused),true);await close();
+    await navigate('MUSIC',viewport.width);await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();assert.equal(await page.locator('audio').first().evaluate(a=>a.paused),true);
+    await page.locator('dialog audio').evaluate(async a=>{window.__musicAudio=a;await a.play()});
+    await page.waitForFunction(()=>!window.__musicAudio.paused&&window.__musicAudio.currentTime>0);
+    await page.getByRole('button',{name:'EXPLORE THE ARCHIVE'}).click();await page.locator('.archive').waitFor();
+    await page.waitForFunction(()=>window.__musicAudio.paused);
+    await page.goBack();await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
+    await page.goForward();await page.locator('.archive').waitFor();await close();
     await navigate('STORE',viewport.width);
     await page.waitForFunction(()=>{const img=document.querySelector('.lax-cover img');return img?.complete&&img.naturalWidth>0});
     assert.equal(await page.getByRole('button',{name:'CHECKOUT COMING SOON'}).isDisabled(),true);await close();
@@ -57,15 +67,21 @@ try {
     await signup.getByRole('status').filter({hasText:'recorded'}).waitFor();await close();
     await navigate('BOOKINGS',viewport.width);
     const booking=page.getByRole('form',{name:'Booking enquiry'});await booking.getByLabel('YOUR NAME').fill('Test promoter');await booking.getByLabel('EMAIL ADDRESS').fill(`promoter${viewport.width}@example.com`);await booking.getByLabel('TELL US ABOUT YOUR EVENT').fill('Local automated test enquiry.');
+    await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.getByRole('heading',{name:'HERE TO HELP.'}).waitFor();
+    await page.goBack();await booking.waitFor();assert.equal(await booking.getByLabel('TELL US ABOUT YOUR EVENT').inputValue(),'Local automated test enquiry.');
+    await close();await navigate('BOOKINGS',viewport.width);assert.equal(await booking.getByLabel('YOUR NAME').inputValue(),'Test promoter');
     failDatabase=true;await booking.getByRole('button',{name:'SEND ENQUIRY'}).click();await booking.getByRole('status').filter({hasText:'could not save'}).waitFor();
     assert.equal(await booking.getByLabel('TELL US ABOUT YOUR EVENT').inputValue(),'Local automated test enquiry.');
     failDatabase=false;await booking.getByRole('button',{name:'SEND ENQUIRY'}).click();await booking.getByRole('status').filter({hasText:'not a confirmed booking'}).waitFor();
-    await page.screenshot({path:`/tmp/cjay-audit/booking-${viewport.width}.png`,fullPage:true});await close();
+    await page.screenshot({path:`/tmp/cjay-audit/booking-${viewport.width}.png`,fullPage:true});
+    await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.goBack();await booking.getByRole('status').filter({hasText:'not a confirmed booking'}).waitFor();
+    assert.equal(await booking.getByRole('button',{name:'RECEIVED'}).isDisabled(),true);await close();
     if(viewport.width<850)assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);
+    await navigate('CONNECT',viewport.width);await page.getByRole('form',{name:'Mailing-list signup'}).getByRole('status').filter({hasText:'recorded'}).waitFor();await close();
     await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),5);await close();
     await navigate('ABOUT',viewport.width);await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.getByRole('heading',{name:'HERE TO HELP.'}).waitFor();await page.getByRole('link',{name:'EMAIL SUPPORT'}).waitFor();await close();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-    await page.emulateMedia({reducedMotion:'reduce'});await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('video').evaluate(v=>v.paused),true);await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('video').paused);await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('video').evaluate(v=>v.paused),true);await page.emulateMedia({reducedMotion:'no-preference'});
   }
   assert.equal((await db.query('select count(*)::int as total from mailing_list_signups')).rows[0].total,2);
   assert.equal((await db.query('select count(*)::int as total from booking_enquiries')).rows[0].total,2);
@@ -81,7 +97,7 @@ try {
   await page.goto(`${base}/privacy`);await page.getByText('Local test operator operates this website.',{exact:false}).waitFor();
   await page.goto(`${base}/archive`);await page.locator('dialog[open] .archive').waitFor();
   assert.deepEqual(errors,[]);
-  console.log('PASS: desktop/mobile landing, media/audio, six navigation panels, cover, disabled checkout, forms -> real API -> local SQL storage, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
+  console.log('PASS: desktop/mobile landing, media/audio, six navigation panels, cover, disabled checkout, forms -> real API -> local SQL storage, preserved drafts/receipts, browser Back/Forward, inline music playback/cleanup, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
   console.log('External provider iframe documents were stubbed. Live Vercel, Supabase, Spotify and YouTube remain UNVERIFIED. No live records were created.');
 } finally {
   await browser?.close();if(app)app.kill('SIGTERM');await new Promise(resolve=>server.close(resolve));await db.close();
