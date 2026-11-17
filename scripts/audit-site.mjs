@@ -55,8 +55,7 @@ try {
   await mkdir('/tmp/cjay-audit',{recursive:true});
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
     await page.setViewportSize(viewport);await page.goto(base);
-    assert.deepEqual(await page.locator('#website-navigation button').allTextContents(),['HOME','BUY','ABOUT','MUSIC','CONTENT','SHOP','EVENTS','BOOKINGS']);
-    for(const name of ['SHOP','EVENTS']){await navigate(name,viewport.width);await page.locator('dialog h2').waitFor();await close();}
+    assert.deepEqual(await page.locator('#website-navigation button').allTextContents(),['HOME','ABOUT','MUSIC','CONTENT','BOOKINGS']);
     await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});
     await page.locator('.lax-audio').dblclick();
     await page.waitForFunction(()=>document.querySelector('.lax-audio').getAttribute('aria-pressed')===String(!document.querySelector('audio').paused));
@@ -71,9 +70,7 @@ try {
     await page.waitForFunction(()=>window.__musicAudio.paused);
     await page.goBack();await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
     await page.goForward();await page.locator('.archive').waitFor();await close();
-    await navigate('STORE',viewport.width);
-    await page.waitForFunction(()=>{const img=document.querySelector('.lax-cover img');return img?.complete&&img.naturalWidth>0});
-    assert.equal(await page.getByRole('button',{name:'CHECKOUT COMING SOON'}).isDisabled(),true);await close();
+    assert.equal(await page.getByRole('button',{name:/BUY LAX!|BUY THE EP|CHECKOUT/}).count(),0);
     await navigate('CONNECT',viewport.width);
     const signup=page.getByRole('form',{name:'Mailing-list signup'});await signup.getByLabel('EMAIL ADDRESS').fill(`fan${viewport.width}@example.com`);
     await signup.getByRole('checkbox').check();await signup.getByRole('button',{name:'JOIN THE MAILING LIST'}).click();
@@ -125,7 +122,7 @@ try {
   assert.equal((await fetch(`${base}/api/email/dispatch`)).status,401);
   assert.equal((await fetch(`${base}/api/email/dispatch`,{headers:{Authorization:'Bearer local-cron-key'}})).status,200);
   assert.deepEqual(errors,[]);
-  console.log('PASS: desktop/mobile landing, media/audio, eight navigation entries, cover, disabled checkout, forms -> real API -> local SQL storage -> encrypted outbox -> local email adapter -> signed delivery callback, confirmation and unsubscribe, preserved drafts/receipts, browser Back/Forward, inline music playback/cleanup, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
+  console.log('PASS: desktop/mobile landing, media/audio, five navigation entries, hidden unfinished commerce/events, forms -> real API -> local SQL storage -> encrypted outbox -> local email adapter -> signed delivery callback, confirmation and unsubscribe, preserved drafts/receipts, browser Back/Forward, inline music playback/cleanup, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
   console.log('External provider iframe documents were stubbed. Live Vercel, Supabase, Spotify and YouTube remain UNVERIFIED. No live records were created.');
 } finally {
   await browser?.close();if(app)app.kill('SIGTERM');await new Promise(resolve=>server.close(resolve));await db.close();

@@ -35,5 +35,5 @@ test('connection and privacy failures report actionable states without raw provi
 
 test('review host and deep-link parsing reject public domains and unexpected inputs',()=>{
   assert.equal(isReviewHost('cjaymnandi.vercel.app'),true);assert.equal(isReviewHost('cjaymnandi-git-development-team.vercel.app'),true);assert.equal(isReviewHost('127.0.0.1:3000'),true);assert.equal(isReviewHost('www.cjaymnandi.co.za'),false);assert.equal(isReviewHost('cjaymnandi.vercel.app.evil.example'),false);
-  assert.equal(parsePanel('bookings'),'bookings');assert.equal(parsePanel('support'),'support');assert.equal(parsePanel('buy'),'store');assert.equal(parsePanel('content'),'archive');assert.equal(parsePanel('home'),null);assert.equal(parsePanel('shop'),'shop');assert.equal(parsePanel('events'),'events');assert.equal(parsePanel(['store','support']),null);assert.equal(parsePanel('unexpected'),null);
+  assert.equal(parsePanel('bookings'),'bookings');assert.equal(parsePanel('support'),'support');assert.equal(parsePanel('buy'),null);assert.equal(parsePanel('content'),'archive');assert.equal(parsePanel('home'),null);assert.equal(parsePanel('shop'),null);assert.equal(parsePanel('events'),null);assert.equal(parsePanel(['store','support']),null);assert.equal(parsePanel('unexpected'),null);
 });

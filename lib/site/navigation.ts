@@ -1,7 +1,11 @@
 export const panelNames = ['music','archive','store','bookings','about','connect','support','shop','events'] as const;
 export type Panel = typeof panelNames[number] | null;
+// Park unfinished sections until their content and purchase flow are ready.
+export const hiddenPanels: readonly Panel[] = ['store','shop','events'];
 export function parsePanel(value: unknown): Panel {
-  if(value==='buy')return 'store';if(value==='content')return 'archive';if(value==='home')return null;
+  if(value==='buy')value='store';
+  if(hiddenPanels.includes(value as Panel))return null;
+  if(value==='content')return 'archive';if(value==='home')return null;
   return typeof value === 'string' && panelNames.includes(value as Exclude<Panel,null>) ? value as Exclude<Panel,null> : null;
 }
 export function isReviewHost(host: string) {

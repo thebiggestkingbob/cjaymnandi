@@ -5,7 +5,6 @@ const steps = [
   {title:'Landing & media',href:'/',detail:'Check the film, sound toggle, pause/resume, mobile crop and keyboard navigation.'},
   {title:'Music',href:'/?panel=music',detail:'Check release copy and the path into the Archive.'},
   {title:'Archive',href:'/archive',detail:'Play both Spotify releases and all three videos. Check the direct-link fallbacks.'},
-  {title:'Store',href:'/?panel=store',detail:'Check the official cover and purchase copy. Checkout must stay disabled until payments and delivery are verified.'},
   {title:'Bookings',href:'/?panel=bookings',detail:'Review the form and contact links. Only submit a labelled test enquiry once the live database and privacy checks pass.'},
   {title:'About',href:'/?panel=about',detail:'Confirm the biography, credits and public artist details.'},
   {title:'Connect',href:'/?panel=connect',detail:'Check optional mailing consent and official links. WhatsApp destination and the email workflow still need confirmation.'},
