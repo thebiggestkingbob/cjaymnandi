@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
+import { featuredSong } from '../lib/music/featured';
 import SocialLinks from './social-links';
 import VisualizerModal from './visualizer-modal';
 import MailingModal from './mailing-modal';
@@ -70,7 +71,7 @@ export default function Countdown({serverNow,contactFormsEnabled=false}: {server
       <div className="launch-details">
         <time className="launch-date" dateTime={launchAt}>{launchLabel}</time>
         <p className="launch-invitation">Until then, stay in the orbit.</p>
-        <div className="launch-actions"><button className="launch-link" type="button" onClick={()=>{setUpdatesOpen(true);resetTilt();}}>STAY UPDATED</button><button className="launch-link" type="button" onClick={openPlayer}>WATCH VISUALIZER</button><a className="launch-link" href="https://open.spotify.com/artist/5vvHnvQWm6Wlgq07j79vni" target="_blank" rel="noreferrer">LISTEN ON SPOTIFY</a></div><SocialLinks/>
+        <div className="launch-actions"><button className="launch-link" type="button" onClick={()=>{setUpdatesOpen(true);resetTilt();}}>STAY UPDATED</button><button className="launch-link" type="button" onClick={openPlayer}>WATCH VISUALIZER</button><a className="launch-link" href={featuredSong.spotify} target="_blank" rel="noreferrer">LISTEN ON SPOTIFY</a></div><SocialLinks/>
         {mediaError && <p className="launch-media-error" role="status">The film is temporarily unavailable.</p>}
       </div>
     </section>

@@ -57,17 +57,12 @@ try {
     await page.setViewportSize(viewport);await page.goto(base);
     assert.deepEqual(await page.locator('#website-navigation button').allTextContents(),['HOME','ABOUT','MUSIC','CONTENT','BOOKINGS']);
     await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});
-    await page.locator('.lax-audio').dblclick();
-    await page.waitForFunction(()=>document.querySelector('.lax-audio').getAttribute('aria-pressed')===String(!document.querySelector('audio').paused));
-    assert.equal(await page.locator('.lax-media-notice').count(),0);
-    if(!await page.locator('audio').first().evaluate(a=>a.paused))await page.locator('.lax-audio').click();
-    await page.getByRole('button',{name:/SOUND OFF/}).click();
-    await page.waitForFunction(()=>!document.querySelector('audio').paused&&document.querySelector('audio').currentTime>0);
-    await navigate('MUSIC',viewport.width);await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();assert.equal(await page.locator('audio').first().evaluate(a=>a.paused),true);
-    await page.locator('dialog audio').evaluate(async a=>{window.__musicAudio=a;await a.play()});
-    await page.waitForFunction(()=>!window.__musicAudio.paused&&window.__musicAudio.currentTime>0);
+    assert.equal(await page.locator('audio').count(),0,'the previous audio clip is not offered');
+    await page.getByRole('button',{name:/LISTEN TO LAX!/}).click();
+    await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
+    assert.match(await page.getByTitle('Play LAX! on Spotify').getAttribute('src'),/2JYLBbngIOycsumS0b9TCA/);
     await page.getByRole('button',{name:'EXPLORE THE ARCHIVE'}).click();await page.locator('.archive').waitFor();
-    await page.waitForFunction(()=>window.__musicAudio.paused);
+    assert.equal(await page.getByTitle('Play LAX! on Spotify').count(),1,'archive retains the official song');
     await page.goBack();await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
     await page.goForward();await page.locator('.archive').waitFor();await close();
     assert.equal(await page.getByRole('button',{name:/BUY LAX!|BUY THE EP|CHECKOUT/}).count(),0);
@@ -88,7 +83,7 @@ try {
     assert.equal(await booking.getByRole('button',{name:'RECEIVED'}).isDisabled(),true);await close();
     if(viewport.width<850)assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);
     await navigate('CONNECT',viewport.width);await page.getByRole('form',{name:'Mailing-list signup'}).getByRole('status').filter({hasText:'recorded'}).waitFor();await close();
-    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),5);await close();
+    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),6);await close();
     await navigate('ABOUT',viewport.width);await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.getByRole('heading',{name:'HERE TO HELP.'}).waitFor();await page.getByRole('link',{name:'EMAIL SUPPORT'}).waitFor();await close();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('video').paused);await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('video').evaluate(v=>v.paused),true);await page.emulateMedia({reducedMotion:'no-preference'});
@@ -122,7 +117,7 @@ try {
   assert.equal((await fetch(`${base}/api/email/dispatch`)).status,401);
   assert.equal((await fetch(`${base}/api/email/dispatch`,{headers:{Authorization:'Bearer local-cron-key'}})).status,200);
   assert.deepEqual(errors,[]);
-  console.log('PASS: desktop/mobile landing, media/audio, five navigation entries, hidden unfinished commerce/events, forms -> real API -> local SQL storage -> encrypted outbox -> local email adapter -> signed delivery callback, confirmation and unsubscribe, preserved drafts/receipts, browser Back/Forward, inline music playback/cleanup, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
+  console.log('PASS: desktop/mobile landing, media/audio, five navigation entries, hidden unfinished commerce/events, forms -> real API -> local SQL storage -> encrypted outbox -> local email adapter -> signed delivery callback, confirmation and unsubscribe, preserved drafts/receipts, browser Back/Forward, official Spotify track embeds/cleanup, error/retry, rate limit, CSRF, payload limits, private support/privacy, reduced motion and direct archive route.');
   console.log('External provider iframe documents were stubbed. Live Vercel, Supabase, Spotify and YouTube remain UNVERIFIED. No live records were created.');
 } finally {
   await browser?.close();if(app)app.kill('SIGTERM');await new Promise(resolve=>server.close(resolve));await db.close();

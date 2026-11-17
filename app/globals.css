@@ -103,3 +103,5 @@
 .launch-signup{width:min(560px,calc(100vw - 32px));max-height:calc(100svh - 40px);margin:auto;padding:0;border:0;background:var(--green);color:var(--white);text-shadow:none;overflow:auto}
 .launch-signup::backdrop{background:#000b}
 .launch-signup-inner{padding:28px}.launch-signup .launch-player-top{padding:0 0 24px;font-size:10px;letter-spacing:1px}.launch-signup h2{font-size:clamp(28px,6vw,42px);letter-spacing:-1.5px;line-height:1.05;color:var(--yellow);margin:12px 0 18px}.launch-signup p{font-size:14px;line-height:1.7}.launch-signup .lax-note{font-size:12px}.launch-signup .lax-outline{padding-left:0}.launch-signup .contact-block{margin-top:24px}
+
+.music-player iframe{grid-column:1 / -1;display:block;width:100%;border:0;border-radius:12px;margin-top:16px}

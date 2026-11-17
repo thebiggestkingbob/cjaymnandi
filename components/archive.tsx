@@ -1,4 +1,6 @@
+import { featuredSong } from '../lib/music/featured';
 const music = [
+  { title: featuredSong.title, kind: 'track', id: '2JYLBbngIOycsumS0b9TCA' },
   { title: "Don't Kill My Qwaa!", kind: 'track', id: '5Q4uyRnSm7ar6qHgOaU6SK' },
   { title: 'Ntjwaka Mei Dawgo', kind: 'album', id: '3fRud4kn6iXSPimTlWgbJf' },
 ];

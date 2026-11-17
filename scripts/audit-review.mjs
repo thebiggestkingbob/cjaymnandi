@@ -16,7 +16,7 @@ try{
     await page.screenshot({path:`/tmp/cjay-review-${viewport.width}.png`,fullPage:true});
     for(const panel of ['music','archive','bookings','about','connect','support']){
       await page.goto(new URL(`/?panel=${panel}`,base).href);await page.locator('dialog[open]').waitFor();
-      if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),5);
+      if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),6);
     }
     await page.goto(new URL('/?panel=store',base).href);assert.equal(await page.locator('dialog[open]').count(),0);
   }
