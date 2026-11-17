@@ -11,10 +11,10 @@ try{
     await page.setViewportSize(viewport);await page.goto(new URL('/review',base).href);
     await page.getByRole('button',{name:'CHECK CONNECTION & READINESS'}).click();
     await page.locator('.readiness-results').waitFor();assert.equal(await page.locator('.readiness-results>div').count(),5);
-    assert.equal(await page.locator('.review-steps>li').count(),7);
+    assert.equal(await page.locator('.review-steps>li').count(),8);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`/tmp/cjay-review-${viewport.width}.png`,fullPage:true});
-    for(const panel of ['music','archive','bookings','about','connect','support']){
+    for(const panel of ['photos','music','archive','bookings','about','connect','support']){
       await page.goto(new URL(`/?panel=${panel}`,base).href);await page.locator('dialog[open]').waitFor();
       if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),6);
     }
@@ -26,5 +26,5 @@ try{
   assert.equal((await fetch(new URL('/api/review',base))).status,405);
   const denied=await new Promise((resolve,reject)=>{const req=request(new URL('/review',base),{headers:{host:'untrusted.example'}},res=>{res.resume();res.on('end',()=>resolve(res.statusCode))});req.on('error',reject);req.end()});
   assert.equal(denied,404);assert.deepEqual(errors,[]);
-  console.log('PASS: desktop/mobile review, real local read-only endpoint, seven walkthrough links, six active deep-linked panels, safe invalid queries, API origin/method guards, non-review host denial, no runtime exceptions. Third-party iframe content stubbed; live Vercel/Supabase not tested.');
+  console.log('PASS: desktop/mobile review, real local read-only endpoint, eight walkthrough links, seven active deep-linked panels, safe invalid queries, API origin/method guards, non-review host denial, no runtime exceptions. Third-party iframe content stubbed; live Vercel/Supabase not tested.');
 }finally{await browser.close();}

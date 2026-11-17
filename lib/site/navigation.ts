@@ -1,4 +1,4 @@
-export const panelNames = ['music','archive','store','bookings','about','connect','support','shop','events'] as const;
+export const panelNames = ['photos','music','archive','store','bookings','about','connect','support','shop','events'] as const;
 export type Panel = typeof panelNames[number] | null;
 // Park unfinished sections until their content and purchase flow are ready.
 export const hiddenPanels: readonly Panel[] = ['store','shop','events'];

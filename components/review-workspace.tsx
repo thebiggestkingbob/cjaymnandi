@@ -4,6 +4,7 @@ import type { ReviewReport } from '../lib/review/checks';
 const steps = [
   {title:'Landing & media',href:'/',detail:'Check the film, sound toggle, pause/resume, mobile crop and keyboard navigation.'},
   {title:'Music',href:'/?panel=music',detail:'Check release copy and the path into the Archive.'},
+  {title:'Living photography',href:'/photos',detail:'Check continuous movement, pause, scroll/swipe, photo viewing and reduced-motion browsing.'},
   {title:'Archive',href:'/archive',detail:'Play both Spotify releases and all three videos. Check the direct-link fallbacks.'},
   {title:'Bookings',href:'/?panel=bookings',detail:'Review the form and contact links. Only submit a labelled test enquiry once the live database and privacy checks pass.'},
   {title:'About',href:'/?panel=about',detail:'Confirm the biography, credits and public artist details.'},

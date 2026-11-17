@@ -105,3 +105,25 @@
 .launch-signup-inner{padding:28px}.launch-signup .launch-player-top{padding:0 0 24px;font-size:10px;letter-spacing:1px}.launch-signup h2{font-size:clamp(28px,6vw,42px);letter-spacing:-1.5px;line-height:1.05;color:var(--yellow);margin:12px 0 18px}.launch-signup p{font-size:14px;line-height:1.7}.launch-signup .lax-note{font-size:12px}.launch-signup .lax-outline{padding-left:0}.launch-signup .contact-block{margin-top:24px}
 
 .music-player iframe{grid-column:1 / -1;display:block;width:100%;border:0;border-radius:12px;margin-top:16px}
+/* The living archive: intrinsic photographic proportions, a bounded seamless track. */
+.lax-dialog.is-collage{width:100vw;max-width:none;height:100svh;max-height:none;margin:0;overflow:hidden}
+.lax-panel.is-collage{padding:0;height:100svh;max-height:none;overflow:hidden;border:0}
+.is-collage>.lax-panel-head{padding:12px 22px;margin:0;position:relative;height:52px}
+.collage{height:calc(100svh - 52px);display:flex;flex-direction:column;background:var(--green)}
+.collage-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 22px 0}
+.collage .collage-toolbar h2{font-size:clamp(25px,3vw,40px);letter-spacing:-1.5px;line-height:1;margin:5px 0 0}
+.collage-toolbar .lax-kicker{font-size:8px;letter-spacing:2px}.collage-pause{background:none;border:0;color:var(--yellow);padding:12px 0;font-size:10px;letter-spacing:1px;white-space:nowrap}.collage-pause:disabled{opacity:.8;cursor:default}
+.collage .collage-hint{font-size:10px;line-height:1.5;max-width:none;margin:10px 22px 14px;opacity:.85}
+.collage-viewport{position:relative;flex:1;min-height:0;width:100%;overflow:hidden;touch-action:none;overscroll-behavior:contain;isolation:isolate}
+.collage-viewport.is-still{overflow-y:auto;touch-action:pan-y}.collage-track{position:relative;width:100%;will-change:transform}
+.collage-photo{position:absolute;display:block;border:0;padding:0;margin:0;background:transparent;color:var(--white);line-height:0;cursor:zoom-in;transform-origin:center;transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .3s;z-index:0}
+.collage-photo img{width:100%;height:100%;object-fit:contain;display:block;user-select:none}.collage-photo:focus-visible{z-index:4;outline:3px solid var(--yellow);outline-offset:2px}
+.collage-photo[data-unavailable]::after{content:'Photo unavailable';position:absolute;inset:0;display:grid;place-items:center;font-size:11px;line-height:1.4;background:var(--green)}
+@media(hover:hover) and (pointer:fine){.collage-photo:hover{transform:scale(1.25);z-index:5;filter:brightness(1.03);box-shadow:0 12px 35px #0005}}
+.collage-viewer{position:fixed;inset:0;width:100vw;max-width:none;height:100svh;max-height:none;padding:60px 25px 25px;border:0;margin:0;background:#0007;color:var(--white);overflow:hidden}
+.collage-viewer[open]{display:flex;align-items:center;justify-content:center;animation:collage-view-in .2s ease-out}.collage-viewer::backdrop{background:#0004}
+.collage-viewer img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;box-shadow:0 10px 50px #0004}.collage-viewer-close{position:absolute;right:24px;top:18px;background:none;border:0;color:var(--yellow);padding:12px;font-size:11px;letter-spacing:1.5px}
+.collage-loading{padding:25px;font-size:14px}.archive-photography{margin:22px 0 35px}
+@keyframes collage-view-in{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+@media(max-width:550px){.is-collage>.lax-panel-head{padding:10px 14px}.collage-toolbar{padding:10px 14px 0}.collage .collage-hint{margin:10px 14px 12px;font-size:9px}.collage-pause{font-size:8px;letter-spacing:.5px}.collage-viewer{padding:65px 10px 25px}}
+@media(prefers-reduced-motion:reduce){.collage-track{will-change:auto}}
