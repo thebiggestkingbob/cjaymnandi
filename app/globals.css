@@ -159,7 +159,7 @@ html{scrollbar-gutter:stable}
 .release-details{min-width:0;flex:1}.release-details h4,.archive .release-details h4{font-size:17px;line-height:1.35;font-weight:500;margin:0 0 8px;overflow-wrap:anywhere}.release-details span{font-size:9px;letter-spacing:1.5px;opacity:.8}
 .release-play{border:0;background:transparent;color:var(--white);padding:14px 0 14px 10px;font-size:11px;letter-spacing:1px}.release-card.is-current .release-play,.release-play:hover{color:var(--yellow)}
 .site-music-controls{display:flex;justify-content:space-between;gap:12px;margin-top:12px}.site-music-controls button{border:0;background:transparent;color:var(--white);padding:10px 0;font-size:10px;letter-spacing:1px}.site-music-controls button:hover{color:var(--yellow)}
-.inline-video-play{font-size:11px;letter-spacing:1.5px;padding:15px 20px;background:#0009;white-space:nowrap}
+.inline-video-play{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;padding:15px 20px;background:#0009;white-space:nowrap}
 @media(max-width:550px){.release-card{gap:12px;min-height:92px;padding:12px 0}.release-art{width:64px;height:64px}.release-details h4,.archive .release-details h4{font-size:15px}}
 .site-music-embed iframe{height:152px!important;min-height:152px;max-height:152px}
 .release-play{min-width:54px;min-height:44px}.site-music-controls button{min-height:44px}
