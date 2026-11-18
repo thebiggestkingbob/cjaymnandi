@@ -12,7 +12,7 @@ export default function MailingModal({open,onClose,enabled}:{open:boolean;onClos
   useEffect(()=>()=>{document.body.style.overflow='';},[]);
   return <dialog ref={dialog} className="launch-signup" aria-labelledby="signup-heading" onCancel={event=>{event.preventDefault();onClose();}} onClick={event=>{if(event.target===dialog.current)onClose();}}>
     <div className="launch-signup-inner">
-      <div className="launch-player-top"><span>C.JayMnandi / LAX!</span><button type="button" onClick={onClose} aria-label="Close mailing list">CLOSE ×</button></div>
+      <div className="launch-player-top"><span>C.JayMnandi / LAX!</span><button type="button" onClick={onClose} aria-label="Close mailing list">CLOSE</button></div>
       <h2 id="signup-heading">STAY IN THE ORBIT.</h2>
       <p>Music. Releases. The next chapter. Straight to your inbox.</p>
       <ContactForm kind="mailing" enabled={enabled} controller={controller}/>

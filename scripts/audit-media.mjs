@@ -1,3 +1,4 @@
+import {musicMetadataFixture} from './fixtures/music-metadata.mjs';
 import {chromium} from '@playwright/test';
 import {readFile,mkdir} from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -9,6 +10,7 @@ try{
   for(const width of [1440,390]){
     const page=await browser.newPage({viewport:{width,height:900},hasTouch:width<600,isMobile:width<600}),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route(/https:\/\/(open.spotify.com|www.youtube.com)\/embed\//,r=>r.fulfill({contentType:'text/html',body:'<html><body>External player fixture</body></html>'}));
+    await musicMetadataFixture(page);
     await page.route('https://open.spotify.com/embed/iframe-api/v1',async r=>r.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
     await page.route('https://i.ytimg.com/**',r=>r.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="480" height="270" fill="#005028"/><text x="30" y="130" fill="white">Thumbnail test fixture</text></svg>'}));
     await page.goto(base);await page.waitForFunction(()=>window.__musicState&&!window.__musicState.isPaused);
@@ -22,7 +24,7 @@ try{
     const nav=async name=>{if(width<1100)await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('navigation',{name:'Website navigation'}).getByRole('button',{name,exact:true}).click();};
     await nav('MUSIC');const panel=page.locator('.lax-dialog');await panel.getByRole('heading',{name:'LAX!',exact:true}).waitFor();
     for(const id of ['5Q4uyRnSm7ar6qHgOaU6SK','3fRud4kn6iXSPimTlWgbJf','1IIfSDNRJTULIwjKg5j6RK','0dXvoI3H71ehlBrJ5kTBBw'])assert.equal(await panel.locator(`[data-release="${id}"]`).count(),1,'existing and new music are directly available in Music');
-    assert.equal(await panel.locator('iframe[src*="/album/1IIfSDNRJTULIwjKg5j6RK"]').count(),1,'duplicate shared album links are listed once');
+    assert.equal(await panel.locator('[data-release="1IIfSDNRJTULIwjKg5j6RK"]').count(),1,'duplicate shared album links are listed once');
     for(const id of ['OlXTom_jz-s','Xc4u61qS5uQ','ZKFxonhUVdA','89--pR19iUg','6c42u8MHtfc']){
       assert.equal(await panel.locator(`[data-video="${id}"]`).count(),1,'new features and existing films are retained');
       assert.equal(await panel.locator(`[data-video="${id}"] img`).getAttribute('loading'),'eager');

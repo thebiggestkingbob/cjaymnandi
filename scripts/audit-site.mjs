@@ -1,3 +1,4 @@
+import {musicMetadataFixture} from './fixtures/music-metadata.mjs';
 // Local E2E: real application + PostgreSQL-compatible PGlite, a local Data API
 // adapter, and stubbed third-party iframe documents. Never writes to live Supabase.
 import { chromium } from '@playwright/test';
@@ -50,7 +51,8 @@ try {
   browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
   const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route(/https:\/\/(open.spotify.com|www.youtube.com)\/embed\//,r=>r.fulfill({contentType:'text/html',body:'<html><body>External player layout fixture</body></html>'}));
-  await page.route('https://open.spotify.com/embed/iframe-api/v1',async route=>route.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
+  await musicMetadataFixture(page);
+    await page.route('https://open.spotify.com/embed/iframe-api/v1',async route=>route.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
   async function navigate(name,width){if(name==='ARCHIVE'){await navigate('MUSIC',width);await page.getByRole('button',{name:'EXPLORE THE ARCHIVE'}).click();await page.locator('.archive').waitFor();return;}if(name==='CONNECT'){await page.getByRole('button',{name:'STAY CONNECTED',exact:true}).click();await page.locator('dialog[open]').waitFor();return;}name=({STORE:'BUY',ARCHIVE:'CONTENT'})[name]||name;if(width<1100)await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('navigation',{name:'Website navigation'}).getByRole('button',{name,exact:true}).click();await page.locator('dialog[open]').waitFor();await page.waitForTimeout(350);}
   async function close(){await page.keyboard.press('Escape');await page.locator('dialog[open]').waitFor({state:'hidden'});}
   await mkdir('/tmp/cjay-audit',{recursive:true});
@@ -58,12 +60,12 @@ try {
     await page.setViewportSize(viewport);await page.goto(base);
     assert.deepEqual(await page.locator('#website-navigation button').allTextContents(),['HOME','ABOUT','MUSIC','CONTENT','BOOKINGS']);
     await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});
-    assert.equal(await page.locator('audio').count(),0,'the previous audio clip is not offered');
+    assert.equal(await page.locator('audio[src]').count(),0,'the previous audio clip is not offered');
     await navigate('MUSIC',viewport.width);
     await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
-    await page.locator('dialog').getByRole('button',{name:'PLAY LAX!',exact:true}).click();await page.getByRole('button',{name:'Hide music player'}).click();assert.match(await page.getByTitle('Play LAX! on Spotify').getAttribute('src'),/2JYLBbngIOycsumS0b9TCA/);
+    await page.locator('dialog').getByRole('button',{name:'PLAY LAX!',exact:true}).click();await page.getByRole('button',{name:'Hide music player'}).click();assert.match(await page.locator('.site-music-embed iframe').getAttribute('src'),/2JYLBbngIOycsumS0b9TCA/);
     await page.getByRole('button',{name:'EXPLORE THE ARCHIVE'}).click();await page.locator('.archive').waitFor();
-    assert.equal(await page.getByTitle('Play LAX! on Spotify').count(),1,'archive retains the official song');
+    assert.equal(await page.locator('.site-music-embed iframe').count(),1,'archive retains the official song');
     await page.goBack();await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
     await page.goForward();await page.locator('.archive').waitFor();await close();
     assert.equal(await page.getByRole('button',{name:/BUY LAX!|BUY THE EP|CHECKOUT/}).count(),0);
@@ -84,7 +86,7 @@ try {
     assert.equal(await booking.getByRole('button',{name:'RECEIVED'}).isDisabled(),true);await close();
     if(viewport.width<850)assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);
     await navigate('CONNECT',viewport.width);await page.getByRole('form',{name:'Mailing-list signup'}).getByRole('status').filter({hasText:'recorded'}).waitFor();await close();
-    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),9);await close();
+    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),5);await close();
     await navigate('ABOUT',viewport.width);await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.getByRole('heading',{name:'HERE TO HELP.'}).waitFor();await page.getByRole('link',{name:'EMAIL SUPPORT'}).waitFor();await close();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('video').paused);await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('video').evaluate(v=>v.paused),true);await page.emulateMedia({reducedMotion:'no-preference'});

@@ -103,7 +103,7 @@ export default function InfiniteCollage(){
       </div>
     </div>
     <dialog ref={viewer} className="collage-viewer" aria-label="Photograph viewer" onCancel={event=>{event.preventDefault();event.stopPropagation();closeViewer();}} onClick={event=>{if(event.target===event.currentTarget)closeViewer();}}>
-      <button className="collage-viewer-close" onClick={closeViewer} type="button" aria-label="Close photograph">CLOSE ×</button>
+      <button className="collage-viewer-close" onClick={closeViewer} type="button" aria-label="Close photograph">CLOSE</button>
       {selected&&(viewerError?<p role="status">This photograph could not load. Please close and try again.</p>:<img key={selected.id} src={selected.variants.at(-1)!.src} alt={selected.alt} width={selected.width} height={selected.height} onError={()=>setViewerError(true)}/>)}
     </dialog>
   </section>;

@@ -1,4 +1,4 @@
-export type Release={id:string;kind:'track'|'album';title?:string};
+export type Release={id:string;kind:'track'|'album';title?:string;audioSrc?:string};
 export const releases:Release[]=[
   {title:'LAX!',kind:'track',id:'2JYLBbngIOycsumS0b9TCA'},
   {title:"Don't Kill My Qwaa!",kind:'track',id:'5Q4uyRnSm7ar6qHgOaU6SK'},

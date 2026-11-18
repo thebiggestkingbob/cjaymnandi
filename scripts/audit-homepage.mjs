@@ -1,3 +1,4 @@
+import {musicMetadataFixture} from './fixtures/music-metadata.mjs';
 import {chromium} from '@playwright/test';
 import {readFile,mkdir} from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -10,6 +11,7 @@ try{
     const page=await browser.newPage({viewport:{width,height:900},hasTouch:width<600,isMobile:width<600});
     const errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route(/https:\/\/(open.spotify.com|www.youtube.com)\/embed\//,r=>r.fulfill({contentType:'text/html',body:'<html><body>Provider fixture</body></html>'}));
+    await musicMetadataFixture(page);
     await page.route('https://open.spotify.com/embed/iframe-api/v1',async r=>r.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
     await page.addInitScript(()=>{window.__allowTestAutoplay=false;});
     await page.goto(base);await page.waitForFunction(()=>window.__musicPlayAttempts>0);
