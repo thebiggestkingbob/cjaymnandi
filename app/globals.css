@@ -183,3 +183,9 @@ html{scrollbar-gutter:stable}
 .form-row>*{min-width:0}.contact-form input[type=date]{max-width:100%;min-height:48px}
 .lax-hero-foot{padding-bottom:20px}
 @media(max-width:550px){.lax-panel-head{padding:12px 22px}.lax-panel-head>span{font-size:8px;letter-spacing:.12em}.lax-panel-body{padding:0 22px 28px}.lax-footer{padding-bottom:max(16px,env(safe-area-inset-bottom))}.lax-hero-foot{padding-bottom:25px}}
+
+.lax-panel-bottom.has-curator{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px}
+.curator-credit{font-family:Helvetica,"Helvetica Neue",Arial,sans-serif;font-weight:700;text-align:center;letter-spacing:0;line-height:1.5}
+.curator-credit:hover{color:var(--yellow)}
+.has-curator .panel-links{justify-content:flex-end}
+@media(max-width:700px){.lax-panel-bottom.has-curator{grid-template-columns:1fr;text-align:center}.has-curator .panel-links{justify-content:center}.curator-credit{justify-self:center;padding:8px 0}}
