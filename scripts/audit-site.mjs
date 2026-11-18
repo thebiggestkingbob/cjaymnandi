@@ -84,7 +84,7 @@ try {
     assert.equal(await booking.getByRole('button',{name:'RECEIVED'}).isDisabled(),true);await close();
     if(viewport.width<850)assert.equal(await page.getByRole('button',{name:'Toggle navigation'}).evaluate(e=>e===document.activeElement),true);
     await navigate('CONNECT',viewport.width);await page.getByRole('form',{name:'Mailing-list signup'}).getByRole('status').filter({hasText:'recorded'}).waitFor();await close();
-    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),5);await close();
+    await navigate('ARCHIVE',viewport.width);assert.equal(await page.locator('.archive iframe').count(),9);await close();
     await navigate('ABOUT',viewport.width);await page.getByRole('button',{name:'SUPPORT',exact:true}).click();await page.getByRole('heading',{name:'HERE TO HELP.'}).waitFor();await page.getByRole('link',{name:'EMAIL SUPPORT'}).waitFor();await close();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.emulateMedia({reducedMotion:'reduce'});await page.waitForFunction(()=>document.querySelector('video').paused);await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('video').evaluate(v=>v.paused),true);await page.emulateMedia({reducedMotion:'no-preference'});

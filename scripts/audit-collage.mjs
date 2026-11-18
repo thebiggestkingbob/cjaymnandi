@@ -19,7 +19,7 @@ try{
     assert.equal(new Set(await page.locator('.collage-photo[data-copy="0"]').evaluateAll(items=>items.map(i=>i.dataset.photo))).size,65);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     const visiblePhoto=async()=>{
-      const item=await page.locator('.collage-photo').evaluateAll(items=>{const v=document.querySelector('.collage-viewport').getBoundingClientRect();return items.findIndex(e=>{const b=e.getBoundingClientRect();return b.top>v.top+8&&b.bottom<v.bottom-8&&b.left>=0&&b.right<=innerWidth})});
+      const item=await page.locator('.collage-photo').evaluateAll(items=>{const v=document.querySelector('.collage-viewport').getBoundingClientRect();const top=Math.max(v.top,document.querySelector('.lax-header')?.getBoundingClientRect().bottom||0),bottom=Math.min(v.bottom,document.querySelector('.lax-footer')?.getBoundingClientRect().top||innerHeight);return items.findIndex(e=>{const b=e.getBoundingClientRect();return b.top>top+8&&b.bottom<bottom-8&&b.left>=0&&b.right<=innerWidth})});
       assert.ok(item>=0,'a complete photograph is visible');return page.locator('.collage-photo').nth(item);
     };
     if(width>600){const tile=await visiblePhoto();const y=await offset();await tile.hover({force:true});await page.waitForTimeout(450);const scale=await tile.evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).a);assert.ok(Math.abs(scale-1.25)<.001);assert.ok(await offset()>y+10,'hover does not pause');}
@@ -44,9 +44,9 @@ try{
       const actual=await offset();assert.ok(Math.abs(actual-((phase+35)%period))<12,'whole-period wrap has no reset');
     }
     await viewport.dispatchEvent('wheel',{deltaY:(37-(await offset()))/.6,deltaMode:0});await page.waitForTimeout(600);
-    const seamBefore=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}'});
+    const seamBefore=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}',animations:'disabled'});
     await viewport.dispatchEvent('wheel',{deltaY:period*3/.6,deltaMode:0});await page.waitForTimeout(200);
-    const seamAfter=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}'});
+    const seamAfter=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}',animations:'disabled'});
     assert.ok(seamBefore.equals(seamAfter),'the photo layer is pixel-identical after three periods, with moving background film masked');
     const downloads=await page.evaluate(()=>{
       const counts={};for(const r of performance.getEntriesByType('resource'))if(r.name.includes('/photography/')&&r.transferSize>0)counts[r.name]=(counts[r.name]||0)+1;return counts;

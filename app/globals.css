@@ -144,3 +144,12 @@
 @media(max-width:550px){.lax-hero{padding-top:120px;padding-bottom:110px}.home-gallery .collage{padding-top:84px;padding-bottom:94px}.home-gallery .collage-pause{bottom:100px}.lax-dialog{top:84px;bottom:100px;max-height:calc(100svh - 184px)}.site-music-player{left:16px;bottom:100px}}
 html{scrollbar-gutter:stable}
 .lax-nav.is-open{background:#000d;border:0}
+/* Photography fills the whole stage, including behind the transparent controls. */
+.home-gallery{background:var(--green)}.home-gallery::before{display:none}.home-gallery .collage{padding:0;height:100svh}
+.inline-video{position:relative;aspect-ratio:16/9;width:100%;background:#000;overflow:hidden}
+.inline-video iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+.inline-video-poster{position:absolute;inset:0;display:block;width:100%;height:100%;padding:0;border:0;background:#001f10;color:white;cursor:pointer}
+.inline-video-poster img{display:block;width:100%;height:100%;object-fit:cover}.inline-video-poster::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 45%,#000b)}
+.inline-video-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;font-size:clamp(28px,5vw,50px);color:var(--yellow);text-shadow:0 2px 20px #000a;transition:scale .2s}.inline-video-poster:hover .inline-video-play{scale:1.12}.inline-video-label{position:absolute;bottom:18px;left:18px;right:18px;z-index:1;text-align:left;font-size:13px;letter-spacing:.3px}.video-category{display:block;margin-bottom:12px;font-size:10px;letter-spacing:1px;color:var(--yellow)}
+.music-section-heading{margin:45px 0 20px;font-size:20px}.release-list iframe{display:block;width:100%;border:0}.release-list .archive-item{margin:22px 0 35px}
+@supports(height:100dvh){.home-gallery .collage{height:100dvh}}

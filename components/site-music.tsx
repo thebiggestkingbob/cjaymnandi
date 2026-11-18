@@ -5,7 +5,7 @@ import {featuredSong} from '../lib/music/featured';
 type Controller={play:()=>void;pause:()=>void;destroy?:()=>void;addListener:(name:string,listener:(event:{data?:{isPaused?:boolean}})=>void)=>void};
 type SpotifyApi={createController:(element:HTMLElement,options:{uri:string;width:string;height:number},ready:(controller:Controller)=>void)=>void};
 declare global{interface Window{onSpotifyIframeApiReady?:(api:SpotifyApi)=>void;__laxSpotifyApi?:SpotifyApi}}
-const MusicContext=createContext({playing:false,start:()=>{},toggle:()=>{}});
+const MusicContext=createContext({playing:false,start:()=>{},toggle:()=>{},pause:()=>{},resume:()=>{}});
 export const useSiteMusic=()=>useContext(MusicContext);
 export default function SiteMusic({children}:{children:ReactNode}){
   const lastTrigger=useRef<HTMLElement|null>(null);
@@ -33,9 +33,11 @@ export default function SiteMusic({children}:{children:ReactNode}){
     const timeout=setTimeout(useFallback,5000);
     return()=>{dead=true;clearTimeout(timeout);script.remove();if(window.onSpotifyIframeApiReady===setup)delete window.onSpotifyIframeApiReady;controller.current?.destroy?.();controller.current=null;};
   },[]);
-  function start(){lastTrigger.current=document.activeElement as HTMLElement;setOpen(true);if(audio.current)audio.current.play().catch(()=>{});else try{controller.current?.play();}catch{}}
-  function toggle(){if(playing){if(audio.current)audio.current.pause();else controller.current?.pause();}else start();}
-  return <MusicContext.Provider value={{playing,start,toggle}}>{children}
+  function resume(){if(audio.current)audio.current.play().catch(()=>{});else try{controller.current?.play();}catch{}}
+  function start(){lastTrigger.current=document.activeElement as HTMLElement;setOpen(true);resume();}
+  function pause(){if(audio.current)audio.current.pause();else controller.current?.pause();}
+  function toggle(){if(playing)pause();else start();}
+  return <MusicContext.Provider value={{playing,start,toggle,pause,resume}}>{children}
     {featuredSong.audioSrc&&<audio ref={audio} src={featuredSong.audioSrc} autoPlay loop preload="auto" onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)}/>}
     <aside className={`site-music-player${open?' is-open':''}`} aria-label="Persistent LAX music player" aria-hidden={!open} inert={!open}>
       <div className="site-music-bar"><span>LAX! / C.JayMnandi</span><button type="button" onClick={()=>{setOpen(false);if(lastTrigger.current?.isConnected)lastTrigger.current.focus({preventScroll:true});}} aria-label="Hide music player">HIDE ×</button></div>

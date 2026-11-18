@@ -15,6 +15,6 @@ try{
     await page.keyboard.press('Escape');await page.locator('dialog[open]').waitFor({state:'hidden'});
   }
   for(const panel of ['buy','store','shop','events']){await page.goto(`${base}/?panel=${panel}`);assert.equal(await page.locator('dialog[open]').count(),0);}
-  await page.route('**/media/visualizer.mp4',r=>r.abort());await page.goto(base);await page.getByRole('status').filter({hasText:'visualizer is temporarily unavailable'}).waitFor();await page.unroute('**/media/visualizer.mp4');await page.getByRole('button',{name:'WATCH FILM',exact:true}).click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});assert.equal(await page.locator('.lax-media-notice').count(),0);
+  await page.route('**/media/visualizer.mp4',r=>r.abort());await page.goto(base);await page.getByRole('status').filter({hasText:'visualizer is temporarily unavailable'}).waitFor();await page.unroute('**/media/visualizer.mp4');await page.getByRole('button',{name:'PLAY VISUALIZER',exact:true}).click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=3&&!v.paused&&v.currentTime>0});assert.equal(await page.locator('.lax-media-notice').count(),0);
   assert.deepEqual(errors,[]);console.log('PASS: 320/390/768/1440px layouts, mobile Escape/focus, keyboard panel controls with persistent navigation, rapid close/reopen, hidden unfinished deep links and actual video-network failure/recovery.');
 }finally{await browser.close()}
