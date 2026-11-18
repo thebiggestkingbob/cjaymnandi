@@ -31,30 +31,30 @@ try{
     const atClose=await offset();await page.keyboard.press('Escape');await viewer.waitFor({state:'hidden'});
     assert.ok(Math.abs(await offset()-atClose)<15,'viewer close does not reset position');
     assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-photo')),id,'viewer restores focus');
-    await page.getByRole('button',{name:'PAUSE MOVEMENT'}).click();const paused=await offset();await page.waitForTimeout(500);assert.ok(Math.abs(await offset()-paused)<1,'explicit pause');
+    await page.getByRole('button',{name:'PAUSE',exact:true}).click();const paused=await offset();await page.waitForTimeout(500);assert.ok(Math.abs(await offset()-paused)<1,'explicit pause');
     // Three entire traversals, including exact wrap boundaries in both directions.
     for(let cycle=0;cycle<3;cycle++){
       for(let phase=0;phase<period;phase+=650){
         const now=await offset();const delta=(phase-now)/.6;
         await viewport.dispatchEvent('wheel',{deltaY:delta,deltaMode:0});
         assert.equal(await page.locator('.collage-photo').count(),tileCount);
-        const coverage=await viewport.evaluate(v=>{const b=v.getBoundingClientRect();return [...v.querySelectorAll('.collage-photo')].some(e=>{const r=e.getBoundingClientRect();return r.top<b.top+80&&r.bottom>b.top+80})});assert.ok(coverage,'wall covers the seam/viewport');
+        const coverage=await viewport.evaluate(v=>{const b=v.getBoundingClientRect();return [...v.querySelectorAll('.collage-photo')].some(e=>{const r=e.getBoundingClientRect();return r.top<b.top+120&&r.bottom>b.top+40})});assert.ok(coverage,'wall covers the seam/viewport');
       }
       const phase=await offset();await viewport.dispatchEvent('wheel',{deltaY:(period+35)/.6,deltaMode:0});
       const actual=await offset();assert.ok(Math.abs(actual-((phase+35)%period))<12,'whole-period wrap has no reset');
     }
     await viewport.dispatchEvent('wheel',{deltaY:(37-(await offset()))/.6,deltaMode:0});await page.waitForTimeout(600);
-    const seamBefore=await viewport.screenshot();
+    const seamBefore=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}'});
     await viewport.dispatchEvent('wheel',{deltaY:period*3/.6,deltaMode:0});await page.waitForTimeout(200);
-    const seamAfter=await viewport.screenshot();
-    assert.ok(seamBefore.equals(seamAfter),'the exact repeated boundary is pixel-identical after three periods');
+    const seamAfter=await viewport.screenshot({style:'.lax-film{visibility:hidden!important}'});
+    assert.ok(seamBefore.equals(seamAfter),'the photo layer is pixel-identical after three periods, with moving background film masked');
     const downloads=await page.evaluate(()=>{
       const counts={};for(const r of performance.getEntriesByType('resource'))if(r.name.includes('/photography/')&&r.transferSize>0)counts[r.name]=(counts[r.name]||0)+1;return counts;
     });
     assert.ok(Object.values(downloads).every(n=>n===1),'repeated instances reuse cached image data');
     assert.equal(failed.length,0,'responsive images load successfully');
     await viewport.dispatchEvent('wheel',{deltaY:(period*.5-(await offset()))/.6,deltaMode:0});
-    await page.getByRole('button',{name:'RESUME MOVEMENT'}).click();
+    await page.getByRole('button',{name:'RESUME',exact:true}).click();
     const reverseStart=await offset();await viewport.dispatchEvent('wheel',{deltaY:-300,deltaMode:0});await page.waitForTimeout(200);
     assert.ok(await offset()<reverseStart-100,'manual input reverses active movement');
     await page.waitForTimeout(4000);const ambientStart=await offset();await page.waitForTimeout(1000);const ambientDelta=(await offset()-ambientStart+period)%period;

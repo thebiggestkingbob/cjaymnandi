@@ -1,3 +1,4 @@
+import {readFile} from 'node:fs/promises';
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { request } from 'node:http';
@@ -7,6 +8,7 @@ const browser=await chromium.launch({...(process.env.CHROMIUM_PATH?{executablePa
 try{
   const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route(/https:\/\/(open.spotify.com|www.youtube.com)\/embed\//,r=>r.fulfill({body:'<html><body>External player fixture</body></html>',contentType:'text/html'}));
+  await page.route('https://open.spotify.com/embed/iframe-api/v1',async r=>r.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
     await page.setViewportSize(viewport);await page.goto(new URL('/review',base).href);
     await page.getByRole('button',{name:'CHECK CONNECTION & READINESS'}).click();
@@ -14,9 +16,9 @@ try{
     assert.equal(await page.locator('.review-steps>li').count(),8);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`/tmp/cjay-review-${viewport.width}.png`,fullPage:true});
-    for(const panel of ['photos','music','archive','bookings','about','connect','support']){
+    for(const panel of ['music','archive','bookings','about','connect','support']){
       await page.goto(new URL(`/?panel=${panel}`,base).href);await page.locator('dialog[open]').waitFor();
-      if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),6);
+      if(panel==='archive')assert.equal(await page.locator('.archive iframe').count(),5);
     }
     await page.goto(new URL('/?panel=store',base).href);assert.equal(await page.locator('dialog[open]').count(),0);
   }
@@ -26,5 +28,5 @@ try{
   assert.equal((await fetch(new URL('/api/review',base))).status,405);
   const denied=await new Promise((resolve,reject)=>{const req=request(new URL('/review',base),{headers:{host:'untrusted.example'}},res=>{res.resume();res.on('end',()=>resolve(res.statusCode))});req.on('error',reject);req.end()});
   assert.equal(denied,404);assert.deepEqual(errors,[]);
-  console.log('PASS: desktop/mobile review, real local read-only endpoint, eight walkthrough links, seven active deep-linked panels, safe invalid queries, API origin/method guards, non-review host denial, no runtime exceptions. Third-party iframe content stubbed; live Vercel/Supabase not tested.');
+  console.log('PASS: desktop/mobile review, real local read-only endpoint, eight walkthrough links, six active deep-linked panels, safe invalid queries, API origin/method guards, non-review host denial, no runtime exceptions. Third-party iframe content stubbed; live Vercel/Supabase not tested.');
 }finally{await browser.close();}

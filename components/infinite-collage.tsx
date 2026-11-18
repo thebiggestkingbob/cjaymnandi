@@ -74,14 +74,12 @@ export default function InfiniteCollage(){
   function closeViewer(){
     viewer.current?.close();setSelected(null);restoring.current=true;lastFocus.current?.focus({preventScroll:true});restoring.current=false;
   }
-  useEffect(()=>{if(selected){setViewerError(false);viewer.current?.showModal();}},[selected]);
+  useEffect(()=>{if(selected){setViewerError(false);viewer.current?.showModal();const previous=document.body.style.overflow;document.body.style.overflow='hidden';return()=>{document.body.style.overflow=previous;};}},[selected]);
   const instances=Array.from({length:copies},(_,copy)=>layout.tiles.map((tile,index)=>({tile,index,copy})) ).flat();
   return <section className="collage" aria-label="Infinite living photographic collage">
-    <div className="collage-toolbar"><div><span className="lax-kicker">THE LIVING ARCHIVE</span><h2>IN THE ORBIT.</h2></div>
-      <button type="button" className="collage-pause" onClick={togglePause} disabled={reduced} aria-pressed={paused||reduced}>{reduced?'REDUCED MOTION':paused?'RESUME MOVEMENT':'PAUSE MOVEMENT'}</button>
-    </div>
-    <p className="collage-hint" id="collage-hint">{photos.length||manifest.length} photographs. Scroll or swipe to explore. Select a moment to look closer.{reduced?' Motion is off.':' Pause for keyboard browsing; arrow keys also move the wall.'}</p>
-    <div ref={viewport} className={`collage-viewport${reduced?' is-still':''}`} tabIndex={0} role="region" aria-label="Photographic wall" aria-describedby="collage-hint" data-period={layout.height}
+    <h2 className="sr-only">Gallery</h2>
+    <button type="button" className="collage-pause" onClick={togglePause} disabled={reduced} aria-pressed={paused||reduced}>{reduced?'MOTION OFF':paused?'RESUME':'PAUSE'}</button>
+    <div ref={viewport} className={`collage-viewport${reduced?' is-still':''}`} tabIndex={0} role="region" aria-label="Photographic wall" data-period={layout.height}
       onKeyDown={event=>{if(event.target!==event.currentTarget||reduced)return;const step=event.key==='ArrowDown'?100:event.key==='ArrowUp'?-100:event.key==='PageDown'?size.height*.8:event.key==='PageUp'?-size.height*.8:0;if(step){event.preventDefault();move(step);}}}
       onPointerDown={event=>{dragged.current=false;if(event.pointerType==='touch'&&!reduced)drag.current={id:event.pointerId,y:event.clientY,time:event.timeStamp,distance:0};}}
       onPointerMove={event=>{const d=drag.current;if(!d||d.id!==event.pointerId)return;const delta=d.y-event.clientY;d.distance+=Math.abs(delta);if(d.distance>7){dragged.current=true;event.currentTarget.setPointerCapture(event.pointerId);move(delta);impulse.current=Math.max(-1800,Math.min(1800,delta/Math.max(.016,(event.timeStamp-d.time)/1000)));}d.y=event.clientY;d.time=event.timeStamp;}}

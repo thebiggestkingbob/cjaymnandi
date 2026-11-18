@@ -1,0 +1,50 @@
+import {chromium} from '@playwright/test';
+import {readFile,mkdir} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const base=process.argv[2]||'http://127.0.0.1:3055';
+if(!/^http:\/\/(localhost|127\.0\.0\.1):/.test(base))throw new Error('Use a local application server.');
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
+await mkdir('/tmp/cjay-homepage',{recursive:true});
+try{
+  for(const width of [1440,390]){
+    const page=await browser.newPage({viewport:{width,height:900},hasTouch:width<600,isMobile:width<600});
+    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.route(/https:\/\/(open.spotify.com|www.youtube.com)\/embed\//,r=>r.fulfill({contentType:'text/html',body:'<html><body>Provider fixture</body></html>'}));
+    await page.route('https://open.spotify.com/embed/iframe-api/v1',async r=>r.fulfill({contentType:'application/javascript',body:await readFile('scripts/fixtures/spotify-api.js','utf8')}));
+    await page.addInitScript(()=>{window.__allowTestAutoplay=false;});
+    await page.goto(base);await page.waitForFunction(()=>window.__musicPlayAttempts>0);
+    assert.equal(await page.locator('.lax-audio').getAttribute('aria-pressed'),'false','blocked autoplay never pretends to be playing');
+    await page.locator('.lax-audio').click();await page.waitForFunction(()=>window.__musicState&&!window.__musicState.isPaused);
+    await page.getByRole('button',{name:'Hide music player'}).click();
+    await page.evaluate(()=>{window.__persistedFrame=document.querySelector('.site-music-embed iframe');});
+    const position=await page.evaluate(()=>window.__musicState.position);
+    const nav=async name=>{if(width<1100)await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('navigation',{name:'Website navigation'}).getByRole('button',{name,exact:true}).click();};
+    await page.screenshot({path:`/tmp/cjay-homepage/landing-${width}.png`});
+    await nav('CONTENT');await page.waitForFunction(()=>Math.abs(document.querySelector('#gallery').getBoundingClientRect().top)<3);
+    assert.equal(new URL(page.url()).pathname,'/');assert.equal(new URL(page.url()).hash,'#gallery');
+    assert.equal(await page.locator('dialog[open]').count(),0,'Content scrolls within homepage rather than opening another page/window');
+    assert.equal(await page.locator('.collage-hint,.collage-toolbar').count(),0,'no gallery instructions or separate title block');
+    assert.equal(await page.locator('.lax-header').evaluate(e=>getComputedStyle(e).position),'fixed');
+    assert.equal(await page.locator('.lax-header').evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(0, 0, 0, 0)');
+    const header=await page.locator('.lax-header').boundingBox();assert.ok(Math.abs(header.y)<1);
+    const ratios=await page.locator('.collage-photo[data-copy="0"]').evaluateAll(items=>items.map(e=>e.offsetWidth/e.offsetHeight));assert.ok(ratios.every(r=>Math.abs(r-.8)<.015),'all gallery tiles share 4:5 ratio');
+    await page.waitForTimeout(1000);await page.screenshot({path:`/tmp/cjay-homepage/gallery-${width}.png`});
+    const order=await page.locator('.collage-photo[data-copy="0"]').evaluateAll(items=>items.map(e=>e.dataset.photo));
+    await nav('ABOUT');await page.getByRole('heading',{name:'JUPITER VIBEZ.'}).waitFor();
+    assert.equal(await page.locator('.lax-header').isVisible(),true,'navigation remains available over panels');
+    await nav('MUSIC');await page.locator('dialog').getByRole('heading',{name:'LAX!',exact:true}).waitFor();
+    await nav('BOOKINGS');await page.getByRole('form',{name:'Booking enquiry'}).waitFor();
+    assert.equal(await page.evaluate(()=>document.querySelector('.site-music-embed iframe')===window.__persistedFrame),true,'track iframe survives all navigation');
+    assert.ok(await page.evaluate(()=>window.__musicState.position)>position,'playback position continues');
+    assert.equal(await page.evaluate(()=>window.__musicState.isPaused),false,'panels do not pause music');
+    await page.getByRole('button',{name:'PAUSE VISUALIZER',exact:true}).click();assert.equal(await page.evaluate(()=>window.__musicState.isPaused),false,'video and music controls are independent');
+    await nav('CONTENT');await page.waitForFunction(()=>Math.abs(document.querySelector('#gallery').getBoundingClientRect().top)<3);
+    assert.deepEqual(await page.locator('.collage-photo[data-copy="0"]').evaluateAll(items=>items.map(e=>e.dataset.photo)),order,'gallery stays mounted without reshuffling during navigation');
+    await nav('HOME');await page.waitForFunction(()=>scrollY<3);assert.equal(await page.evaluate(()=>window.__musicState.isPaused),false);
+    await page.locator('.lax-audio').click();await page.waitForFunction(()=>window.__musicState.isPaused);
+    await page.goto(`${base}/photos`);await page.waitForURL('**/#gallery');assert.equal(await page.locator('dialog[open]').count(),0,'legacy URL resolves to integrated homepage');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    assert.deepEqual(errors,[]);await page.close();
+  }
+  console.log('PASS: inline homepage gallery; fixed transparent navigation; 4:5 thumbnails; no gallery instructions; stable photo order; separate video/music controls; autoplay attempted with truthful blocked state; persistent player/position across Home, Content, About, Music and Bookings; legacy redirect; desktop/mobile. Spotify SDK/playback is simulated, not real delivery.');
+}finally{await browser.close();}
