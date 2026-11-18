@@ -23,8 +23,8 @@ try{
     await viewer.getByRole('button',{name:'Close visualizer'}).click();await page.waitForFunction(()=>!window.__musicState.isPaused);
     const nav=async name=>{if(width<1100)await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('navigation',{name:'Website navigation'}).getByRole('button',{name,exact:true}).click();};
     await nav('MUSIC');const panel=page.locator('.lax-dialog');await panel.getByRole('heading',{name:'LAX!',exact:true}).waitFor();
-    for(const id of ['5Q4uyRnSm7ar6qHgOaU6SK','3fRud4kn6iXSPimTlWgbJf','1IIfSDNRJTULIwjKg5j6RK','0dXvoI3H71ehlBrJ5kTBBw'])assert.equal(await panel.locator(`[data-release="${id}"]`).count(),1,'existing and new music are directly available in Music');
-    assert.equal(await panel.locator('[data-release="1IIfSDNRJTULIwjKg5j6RK"]').count(),1,'duplicate shared album links are listed once');
+    for(const id of ['5Q4uyRnSm7ar6qHgOaU6SK','0dXvoI3H71ehlBrJ5kTBBw'])assert.equal(await panel.locator(`[data-release="${id}"]`).count(),1,'existing and new music are directly available in Music');
+    assert.equal(await panel.locator('[data-release="1IIfSDNRJTULIwjKg5j6RK"],[data-release="3fRud4kn6iXSPimTlWgbJf"]').count(),0,'duplicate album editions are removed');
     for(const id of ['OlXTom_jz-s','Xc4u61qS5uQ','ZKFxonhUVdA','89--pR19iUg','6c42u8MHtfc']){
       assert.equal(await panel.locator(`[data-video="${id}"]`).count(),1,'new features and existing films are retained');
       assert.equal(await panel.locator(`[data-video="${id}"] img`).getAttribute('loading'),'eager');
@@ -40,7 +40,7 @@ try{
       await nav('MUSIC');await panel.getByRole('heading',{name:'LAX!',exact:true}).waitFor();
     }
     await panel.getByRole('button',{name:'EXPLORE THE ARCHIVE'}).click();await page.locator('.archive').waitFor();
-    for(const id of ['2JYLBbngIOycsumS0b9TCA','5Q4uyRnSm7ar6qHgOaU6SK','3fRud4kn6iXSPimTlWgbJf','1IIfSDNRJTULIwjKg5j6RK','0dXvoI3H71ehlBrJ5kTBBw'])assert.equal(await page.locator(`.archive [data-release="${id}"]`).count(),1);
+    for(const id of ['2JYLBbngIOycsumS0b9TCA','5Q4uyRnSm7ar6qHgOaU6SK','0dXvoI3H71ehlBrJ5kTBBw'])assert.equal(await page.locator(`.archive [data-release="${id}"]`).count(),1);
     await nav('CONTENT');await page.waitForFunction(()=>Math.abs(document.querySelector('#gallery').getBoundingClientRect().top)<.1);
     await page.waitForFunction(()=>[...document.querySelectorAll('.collage-photo img[src]')].slice(0,3).every(i=>i.complete&&i.naturalWidth>0));
     const wall=await page.locator('.collage-viewport').boundingBox();assert.ok(Math.abs(wall.y)<1&&Math.abs(wall.height-900)<1,'photography fills the full screen behind header and footer');

@@ -9,8 +9,8 @@ export function MusicReleases({includeFeatured=true}:{includeFeatured?:boolean})
     const active=music.currentId===item.id,playing=active&&music.playing;
     return <article className={`release-card${active?' is-current':''}`} key={item.id} data-release={item.id}>
       {metadata?.image?<img className="release-art" src={metadata.image} width={80} height={80} alt="" loading="eager"/>:<div className="release-art release-art-placeholder" aria-hidden="true">{item.kind==='album'?'ALBUM':'SINGLE'}</div>}
-      <div className="release-details"><h4>{title}</h4><span>{playing?'PLAYING':item.kind==='album'?'ALBUM':'SINGLE'}</span></div>
-      <button className="release-play" type="button" aria-label={`${playing?'Pause':'Play'} ${title}`} aria-pressed={playing} onClick={()=>playing?music.pause():music.selectRelease(item.id)}>{playing?'PAUSE':'PLAY'}</button>
+      <div className="release-details"><h4>{title}</h4><span className="release-artist">{item.artist||'C.JayMnandi'}</span>{playing&&<span className="release-status">PLAYING</span>}</div>
+      <button className="release-play" type="button" aria-label={`${playing?'Pause':'Play'} ${title}`} aria-pressed={playing} onClick={()=>playing?music.pause():music.selectRelease(item.id)}><svg viewBox="0 0 24 24" aria-hidden="true">{playing?<path d="M6 4h4v16H6zm8 0h4v16h-4z"/>:<path d="M7 4v16l13-8z"/>}</svg></button>
     </article>;
   })}</div>;
 }

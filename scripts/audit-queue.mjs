@@ -12,19 +12,19 @@ try{for(const width of [1440,390]){
  await page.goto(base);await page.waitForFunction(()=>window.__musicState&&!window.__musicState.isPaused);await page.evaluate(()=>{window.__queueFrame=document.querySelector('.site-music-embed iframe');});
  const nav=async name=>{if(width<1100)await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('navigation',{name:'Website navigation'}).getByRole('button',{name,exact:true}).click();};
  await nav('MUSIC');const panel=page.locator('.lax-dialog');await panel.getByRole('heading',{name:'LAX!',exact:true}).waitFor();
- assert.equal(await panel.locator('.release-card').count(),4);assert.equal(await panel.locator('.release-list iframe').count(),0,'independent Spotify players have been removed');
- for(const card of await panel.locator('.release-card').all()){const box=await card.boundingBox();assert.ok(box.height<=130,'release cards contain no oversized empty embed space');}
+ assert.equal(await panel.locator('.release-card').count(),2);assert.equal(await panel.locator('.release-list iframe').count(),0,'independent Spotify players have been removed');
+ for(const card of await panel.locator('.release-card').all()){const height=await card.evaluate(e=>e.offsetHeight);assert.ok(height===152,'release cards contain no oversized empty embed space');}
  const choose=async id=>{await panel.locator(`[data-release="${id}"] .release-play`).click();await page.waitForFunction(id=>document.querySelector('.site-music-player').dataset.currentRelease===id,id);await page.getByRole('button',{name:'Hide music player'}).click();};
- for(const id of ['5Q4uyRnSm7ar6qHgOaU6SK','3fRud4kn6iXSPimTlWgbJf','1IIfSDNRJTULIwjKg5j6RK','0dXvoI3H71ehlBrJ5kTBBw']){
+ for(const id of ['5Q4uyRnSm7ar6qHgOaU6SK','0dXvoI3H71ehlBrJ5kTBBw']){
    await choose(id);assert.equal(await page.evaluate(()=>window.__musicControllers),1);assert.equal(await page.evaluate(()=>document.querySelector('.site-music-embed iframe')===window.__queueFrame),true);
    assert.equal(await page.evaluate(()=>window.__musicLoads.at(-1).oldPaused),true,'old release is paused before loading a new one');
    assert.equal(await panel.locator('.release-play[aria-pressed="true"]').count(),1,'only one release can be playing');
  }
  await choose('5Q4uyRnSm7ar6qHgOaU6SK');await page.waitForFunction(()=>window.__musicState.position>=2000);
- await page.evaluate(()=>window.__finishMusic());await page.waitForFunction(()=>document.querySelector('.site-music-player').dataset.currentRelease==='3fRud4kn6iXSPimTlWgbJf');
- await page.evaluate(()=>window.__emitMusicUpdate({duration:180000,position:180000,isPaused:true}));assert.equal(await page.locator('.site-music-player').getAttribute('data-current-release'),'3fRud4kn6iXSPimTlWgbJf','duplicate end does not skip the next song');
- await page.waitForFunction(()=>window.__musicState.position>=2000);await panel.locator('[data-release="3fRud4kn6iXSPimTlWgbJf"] .release-play').click();
- await page.evaluate(()=>window.__finishMusic());assert.equal(await page.locator('.site-music-player').getAttribute('data-current-release'),'3fRud4kn6iXSPimTlWgbJf','explicit pause does not advance');
+ await page.evaluate(()=>window.__finishMusic());await page.waitForFunction(()=>document.querySelector('.site-music-player').dataset.currentRelease==='0dXvoI3H71ehlBrJ5kTBBw');
+ await page.evaluate(()=>window.__emitMusicUpdate({duration:180000,position:180000,isPaused:true}));assert.equal(await page.locator('.site-music-player').getAttribute('data-current-release'),'0dXvoI3H71ehlBrJ5kTBBw','duplicate end does not skip the next song');
+ await page.waitForFunction(()=>window.__musicState.position>=2000);await panel.locator('[data-release="0dXvoI3H71ehlBrJ5kTBBw"] .release-play').click();
+ await page.evaluate(()=>window.__finishMusic());assert.equal(await page.locator('.site-music-player').getAttribute('data-current-release'),'0dXvoI3H71ehlBrJ5kTBBw','explicit pause does not advance');
  await choose('5Q4uyRnSm7ar6qHgOaU6SK');await page.waitForTimeout(400);
  await panel.locator('[data-video="Xc4u61qS5uQ"] button').click();assert.equal(await page.evaluate(()=>window.__musicState.isPaused),true);
  await panel.locator('[data-video="ZKFxonhUVdA"] button').click();assert.equal(await panel.locator('iframe[src*="autoplay=1"]').count(),1,'a second video stops the first');

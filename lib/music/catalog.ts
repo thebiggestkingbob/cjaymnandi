@@ -1,11 +1,9 @@
-export type Release={id:string;kind:'track'|'album';title?:string;audioSrc?:string};
+export type Release={id:string;kind:'track'|'album';title?:string;artist?:string;audioSrc?:string};
+// Use the compact track versions, not duplicate single-track album editions.
 export const releases:Release[]=[
   {title:'LAX!',kind:'track',id:'2JYLBbngIOycsumS0b9TCA'},
-  {title:"Don't Kill My Qwaa!",kind:'track',id:'5Q4uyRnSm7ar6qHgOaU6SK'},
-  {title:'Ntjwaka Mei Dawgo',kind:'album',id:'3fRud4kn6iXSPimTlWgbJf'},
-  // Spotify supplies the visible release names inside these new embeds.
-  {kind:'album',id:'1IIfSDNRJTULIwjKg5j6RK'},
-  {kind:'track',id:'0dXvoI3H71ehlBrJ5kTBBw'},
+  {title:"Don't Kill My Qwaa!",artist:'D F W N E, OoFDawg, C.JayMnandi',kind:'track',id:'5Q4uyRnSm7ar6qHgOaU6SK'},
+  {title:'Ntjwaka My Dawgo',kind:'track',id:'0dXvoI3H71ehlBrJ5kTBBw'},
 ];
 export const featureVideos=[
   {id:'OlXTom_jz-s',title:'LAX! · Official visualizer',category:'Visualizer / Features'},
